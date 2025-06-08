@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Match Detail{% endblock %}
+
+{% block content %}
+<div class="text-center text-white bg-dark py-4">
+  <div class="mb-2">
+    <small>{{ match.tournament }} · {{ match.match_date|date:"D, j.n." }}</small>
+    <span class="float-end me-4">Endstand</span>
+  </div>
+</div>
+
+<div class="d-flex justify-content-center align-items-center">
+
+  <!-- Team 1 -->
+  <div class="text-center mx-3">
+    <img src="{% if match.team1.logo %}{{ match.team1.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}"
+         alt="{{ match.team1.name }}" width="50" height="50" class="mb-1">
+    <h5>{{ match.team1.name }}</h5>
+  </div>
+
+  <!-- Score -->
+  <div class="mx-3">
+    <h2 class="fw-bold">{{ match.score }}</h2>
+  </div>
+
+  <!-- Team 2 -->
+  <div class="text-center mx-3">
+    <img src="{% if match.team2.logo %}{{ match.team2.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}"
+         alt="{{ match.team2.name }}" width="50" height="50" class="mb-1">
+    <h5>{{ match.team2.name }}</h5>
+  </div>
+
+</div>
+
+
+<!-- Optional: YouTube-Video -->
+{% if match.yt_url %}
+<div class="container my-4">
+    <div class="ratio ratio-16x9">
+      <iframe
+        src="https://www.youtube.com/embed/{{ match.yt_url|cut:'https://www.youtube.com/watch?v=' }}"
+        title="YouTube video player"
+        frameborder="0"
+        allowfullscreen>
+      </iframe>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Neueste Spiele{% endblock %}
+
+{% block content %}
+<h1>Neueste Spiele</h1>
+
+{% for sport_data in data %}
+  <h2>{{ sport_data.sport.name }}</h2>
+
+  {% for tournament, matches in sport_data.tournaments.items %}
+    <h3>{{ tournament }}</h3>
+
+    {% for match in matches|slice:":3" %}
+      <div class="card my-2 p-2">
+        <a href="{% url 'match_detail' match.id %}">
+          {{ match.team1.name }} {{ match.score }} {{ match.team2.name }} ({{ match.match_date|date:"d.m.Y" }})
+        </a>
+      </div>
+    {% endfor %}
+
+    <!-- Optional: Hinweis auf weitere -->
+    {% if matches|length > 3 %}
+      <small><i>Weitere Spiele vorhanden …</i></small>
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+{% endblock %}

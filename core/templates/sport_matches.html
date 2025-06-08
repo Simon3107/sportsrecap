@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ sport.name }} – Spiele{% endblock %}
+
+{% block content %}
+  <h2>Spiele in {{ sport.name }}</h2>
+
+  {% if matches %}
+    <ul class="list-group">
+      {% for match in matches %}
+        <a href="{% url 'match_detail' match.id %}" class="list-group-item list-group-item-action">
+          <strong>{{ match.team1.name }}</strong> vs <strong>{{ match.team2.name }}</strong> <br>
+          Ergebnis: {{ match.score }} <br>
+          Datum: {{ match.match_date }}
+        </a>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Es wurden noch keine Spiele für diese Sportart eingetragen.</p>
+  {% endif %}
+{% endblock %}
