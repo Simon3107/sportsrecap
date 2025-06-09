@@ -1,9 +1,19 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Sport, Match
 from collections import defaultdict
-
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import logout
 # Create your views here.
-from django.shortcuts import render
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
 
 def home(request):
     sports = Sport.objects.all()
@@ -39,3 +49,7 @@ def sport_matches(request, id):
         'sport': sport,
         'matches': matches
     })
+
+def logout_view(request):
+    logout(request)
+    return redirect('index')
