@@ -3,6 +3,8 @@ from .models import Sport, Match, Comment
 from collections import defaultdict
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import logout
+from django.contrib import messages
+from django.contrib.auth.views import LoginView, LogoutView
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from .forms import CommentForm
@@ -76,6 +78,14 @@ def sport_matches(request, id):
         'matches': matches
     })
 
-def logout_view(request):
-    logout(request)
-    return redirect('index')
+
+class CustomLoginView(LoginView):
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, "Erfolgreich eingeloggt!")  # Erfolgsmeldung
+        return response
+
+class CustomLogoutView(LogoutView):
+    def dispatch(self, request, *args, **kwargs):
+        messages.success(request, "Erfolgreich ausgeloggt!")
+        return super().dispatch(request, *args, **kwargs)
