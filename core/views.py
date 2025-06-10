@@ -1,8 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Sport, Match
+from .models import Sport, Match, Comment
 from collections import defaultdict
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import logout
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .forms import CommentForm
 # Create your views here.
 
 def register(request):
@@ -36,7 +39,30 @@ def sport_list(request):
 
 def match_detail(request, id):
     match = get_object_or_404(Match, pk=id)
-    return render(request, 'match_detail.html', {'match': match})
+    comments = Comment.objects.filter(match=match).order_by('-created_at')
+    return render(request, 'match_detail.html', {
+        'match': match,
+        'comments': comments,
+        'comment_form': CommentForm()
+    })
+
+@login_required
+def add_comment(request, match_id):
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.user = request.user
+            comment.match = get_object_or_404(Match, pk=match_id)
+            comment.save()
+            return JsonResponse({
+                'success': True,
+                'comment': comment.text,
+                'user': comment.user.username,
+                'date': comment.created_at.strftime("%d.%m.%Y %H:%M")
+            })
+        return JsonResponse({'success': False, 'errors': form.errors})
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
 
 def profile(request):
     return render(request, 'profile.html')

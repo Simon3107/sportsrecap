@@ -48,4 +48,63 @@
 </div>
 {% endif %}
 
+<div class="container mt-5">
+    <h4>Kommentare</h4>
+
+    {% if user.is_authenticated %}
+        <form id="comment-form" method="post">
+            {% csrf_token %}
+            {{ comment_form.as_p }}
+            <button type="submit" class="btn btn-primary">Kommentar absenden</button>
+        </form>
+    {% else %}
+        <div class="alert alert-info">
+            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-sm btn-primary">Einloggen</a>
+            um einen Kommentar zu schreiben.
+        </div>
+    {% endif %}
+
+    <div id="comments-list">
+        {% for comment in comments %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <strong>{{ comment.user.username }}</strong>
+                    <small class="text-muted">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+                    <p>{{ comment.text }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- AJAX Script -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#comment-form').submit(function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '{% url "add_comment" match.id %}',
+            data: $(this).serialize(),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'  // Wichtig für die Erkennung
+            },
+            success: function(response) {
+                if(response.success) {
+                    $('#comments-list').prepend(
+                        '<div class="card mb-2">' +
+                        '<div class="card-body">' +
+                        '<strong>' + response.user + '</strong>' +
+                        '<small class="text-muted">' + response.date + '</small>' +
+                        '<p>' + response.comment + '</p>' +
+                        '</div></div>'
+                    );
+                    $('#id_text').val('');
+                }
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
