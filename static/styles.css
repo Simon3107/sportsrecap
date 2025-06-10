@@ -1,0 +1,78 @@
+/* === GLOBAL === */
+body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* === NAVBAR === */
+  .navbar {
+    background-color: #e50914 !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .navbar-brand, .nav-link {
+    color: #fff !important;
+    font-weight: 600;
+  }
+  
+  .nav-link:hover {
+    color: #ffd700 !important;
+  }
+  
+  /* === MAIN CONTAINER === */
+  main.container {
+    background-color: #1f1f1f;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+  }
+  
+  /* === FOOTER === */
+  footer {
+    background-color: #000;
+    color: #bbb;
+    font-size: 0.9rem;
+  }
+  
+  /* === BUTTONS === */
+  .btn-primary {
+    background-color: #e50914;
+    border-color: #e50914;
+  }
+  
+  .btn-primary:hover {
+    background-color: #ff3333;
+    border-color: #ff1a1a;
+  }
+  
+  /* === TITEL UND TEXT === */
+  h1, h2, h3, h4, h5 {
+    color: #ffffff;
+    font-weight: bold;
+  }
+  
+  a {
+    color: #e50914;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    color: #ff3333;
+  }
+  footer.bg-primary {
+    background-color: #000 !important; /* oder jede andere Farbe */
+  }
+
+  .card {
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 15px rgba(229, 9, 20, 0.4);
+  }
+  
+  
