@@ -1,8 +1,10 @@
 from django.urls import path
 from . import views
 from .views import add_comment, CustomLoginView, CustomLogoutView, register
+from core import views
 
 urlpatterns = [
+    path('ajax/load-tournaments/', views.load_tournaments, name='load_tournaments'),
     path('', views.home, name='index'),
     path('sports/', views.sport_list, name='sport_list'),
     path('match/<int:id>/', views.match_detail, name='match_detail'),

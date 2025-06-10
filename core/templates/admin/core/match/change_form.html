@@ -1,0 +1,22 @@
+{% extends "admin/change_form.html" %}
+
+{% block extrahead %}
+{{ block.super }}
+<script>
+// WICHTIG: Nutzt Djangos eingebautes jQuery
+(django.jQuery)(function($) {
+    // 1. Turniere laden bei Sport-Änderung
+    $('#id_sport').change(function() {
+        var sportId = $(this).val();
+        $.get('{% url "load_tournaments" %}?sport_id=' + sportId, function(data) {
+            $('#id_tournament').html(data);
+        });
+    });
+    
+    // 2. Initial laden wenn Sport vorausgewählt ist (bei Bearbeitung)
+    if ($('#id_sport').val()) {
+        $('#id_sport').trigger('change');
+    }
+});
+</script>
+{% endblock %}

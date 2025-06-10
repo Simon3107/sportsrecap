@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Sport, Match, Comment
+from .models import Sport, Match, Comment, Tournament
 from collections import defaultdict
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import logout
@@ -89,3 +89,10 @@ class CustomLogoutView(LogoutView):
     def dispatch(self, request, *args, **kwargs):
         messages.success(request, "Erfolgreich ausgeloggt!")
         return super().dispatch(request, *args, **kwargs)
+
+def load_tournaments(request):
+    sport_id = request.GET.get('sport_id')
+    tournaments = Tournament.objects.filter(sport_id=sport_id)
+    return render(request, 'admin/core/match/tournament_options.html', {
+        'tournaments': tournaments
+    })
