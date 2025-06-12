@@ -7,26 +7,21 @@
 {% for sport_data in data %}
   <h2 class="mt-4">{{ sport_data.sport.name }}</h2>
 
-  {% for tournament, matches in sport_data.tournaments.items %}
+  {% for tournament, match in sport_data.tournaments.items %}
     <h3 class="text-warning mt-3">{{ tournament }}</h3>
 
-    {% for match in matches|slice:":3" %}
-      <div class="card bg-dark text-white mb-3 shadow-sm border border-danger">
-        <div class="card-body">
-          <a href="{% url 'match_detail' match.id %}" class="text-decoration-none text-white">
-            <h5 class="card-title">
-              {{ match.team1.name }} <span class="text-danger">{{ match.score }}</span> {{ match.team2.name }}
-            </h5>
-            <p class="card-text"><small class="text-muted">{{ match.match_date|date:"d.m.Y" }}</small></p>
-          </a>
-        </div>
+    <div class="card bg-dark text-white mb-3 shadow-sm border border-danger">
+      <div class="card-body">
+        <a href="{% url 'match_detail' match.id %}" class="text-decoration-none text-white">
+          <h5 class="card-title">
+            {{ match.team1.name }} <span class="text-danger">{{ match.score }}</span> {{ match.team2.name }}
+          </h5>
+          <p class="card-text"><small class="text-muted">{{ match.match_date|date:"d.m.Y" }}</small></p>
+        </a>
       </div>
-    {% endfor %}
-
-    {% if matches|length > 3 %}
-      <p><small class="text-secondary fst-italic">Weitere Spiele vorhanden …</small></p>
-    {% endif %}
+    </div>
   {% endfor %}
+
 {% endfor %}
 {% endblock %}
 

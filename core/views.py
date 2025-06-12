@@ -26,12 +26,14 @@ def home(request):
 
     for sport in sports:
         matches = Match.objects.filter(sport=sport).order_by('-match_date')
-        tournaments = defaultdict(list)
+        latest_per_tournament = {}
         for match in matches:
-            tournaments[match.tournament].append(match)
+            tournament = match.tournament
+            if tournament not in latest_per_tournament:
+                latest_per_tournament[tournament] = match
         data.append({
             'sport': sport,
-            'tournaments': dict(tournaments)
+            'tournaments': latest_per_tournament
         })
 
     return render(request, 'index.html', {'data': data})

@@ -15,7 +15,7 @@ class Tournament(models.Model):
     sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
     
     def __str__(self):
-        return f"{self.name} ({self.sport.name})"
+        return f"{self.name}"
 
 class Team(models.Model):
     name = models.CharField(max_length=100, unique=True)
