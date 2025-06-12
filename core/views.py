@@ -35,10 +35,25 @@ def home(request):
 
     for sport in sports:
         matches = Match.objects.filter(sport=sport).order_by('-match_date')
-        tournaments = defaultdict(list)
+
+        tournaments_all = defaultdict(list)
+        tournaments_latest = {}
+
         for match in matches:
-            tournaments[match.tournament].append(match)
-        data.append({'sport': sport, 'tournaments': dict(tournaments)})
+            tournament = match.tournament
+
+            # Alle Matches für Favoriten-Seite
+            tournaments_all[tournament].append(match)
+
+            # Nur das neueste Match pro Turnier (für Startseite)
+            if tournament not in tournaments_latest:
+                tournaments_latest[tournament] = match
+
+        data.append({
+            'sport': sport,
+            'tournaments_all': dict(tournaments_all),
+            'tournaments_latest': tournaments_latest
+        })
 
     return render(request, 'index.html', {'data': data})
 
