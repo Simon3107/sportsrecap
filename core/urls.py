@@ -1,7 +1,6 @@
 from django.urls import path
 from . import views
 from .views import add_comment, CustomLoginView, CustomLogoutView, register
-from core import views
 
 urlpatterns = [
     path('ajax/load-tournaments/', views.load_tournaments, name='load_tournaments'),
@@ -14,5 +13,9 @@ urlpatterns = [
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', CustomLogoutView.as_view(), name='logout'),
     path('register/', register, name='register'),
-	
+
+    # 👇 Neue URL für Favoriten-Funktion:
+    path('favorit/<int:team_id>/', views.toggle_favorite, name='toggle_favorite'),
+    path('favoriten/', views.favorite_matches, name='favorite_matches'),
 ]
+

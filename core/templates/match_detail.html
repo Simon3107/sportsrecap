@@ -3,6 +3,26 @@
 {% block title %}Match Detail{% endblock %}
 
 {% block content %}
+
+{% if user.is_authenticated %}
+  <form action="{% url 'toggle_favorite' match.team1.id %}" method="post" style="display:inline;">
+    {% csrf_token %}
+    {% if match.team1 in user.favorite_teams.all %}
+      <button type="submit" class="btn btn-warning">★ {{ match.team1.name }} entfernen</button>
+    {% else %}
+      <button type="submit" class="btn btn-outline-warning">☆ {{ match.team1.name }} favorisieren</button>
+    {% endif %}
+  </form>
+  <form action="{% url 'toggle_favorite' match.team2.id %}" method="post" style="display:inline;">
+    {% csrf_token %}
+    {% if match.team2 in user.favorite_teams.all %}
+      <button type="submit" class="btn btn-warning">★ {{ match.team2.name }} entfernen</button>
+    {% else %}
+      <button type="submit" class="btn btn-outline-warning">☆ {{ match.team2.name }} favorisieren</button>
+    {% endif %}
+  </form>
+{% endif %}
+
 <div class="text-center text-white bg-dark py-4">
   <div class="mb-2">
     <small>{{ match.tournament }} · {{ match.match_date|date:"D, j.n." }}</small>

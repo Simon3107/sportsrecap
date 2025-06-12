@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Meine Favoriten{% endblock %}
+
+{% block content %}
+  <h1>Spiele deiner Lieblings-Teams</h1>
+  {% if matches %}
+    {% for match in matches %}
+      <div class="card my-2 p-3">
+        <a href="{% url 'match_detail' match.id %}">
+          <strong>{{ match.team1.name }}</strong> {{ match.score }} <strong>{{ match.team2.name }}</strong>
+          <br>
+          <small>{{ match.match_date|date:"d.m.Y" }} | {{ match.tournament.name }}</small>
+        </a>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>Du hast noch keine Spiele von favorisierten Teams.</p>
+  {% endif %}
+{% endblock %}

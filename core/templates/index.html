@@ -7,7 +7,8 @@
 {% for sport_data in data %}
   <h2 class="mt-4">{{ sport_data.sport.name }}</h2>
 
-  {% for tournament, match in sport_data.tournaments.items %}
+  {% for tournament, match in sport_data.tournaments_latest.items %}
+
     <h3 class="text-warning mt-3">{{ tournament }}</h3>
 
     <div class="card bg-dark text-white mb-3 shadow-sm border border-danger">

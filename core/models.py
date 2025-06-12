@@ -44,3 +44,13 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.user.username} – {self.created_at.strftime('%Y-%m-%d')}"
+        
+class FavoriteTeam(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user', 'team')  # verhindert doppelte Favoriten
+
+    def __str__(self):
+        return f"{self.user.username} favorisiert {self.team.name}"
