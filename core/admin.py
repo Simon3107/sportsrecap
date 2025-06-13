@@ -1,5 +1,4 @@
 from django.contrib import admin
-# Register your models here.
 from .models import Sport, Match, Comment, Team, Tournament
 
 @admin.register(Tournament)

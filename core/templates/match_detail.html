@@ -5,22 +5,23 @@
 {% block content %}
 
 {% if user.is_authenticated %}
-  <form action="{% url 'toggle_favorite' match.team1.id %}" method="post" style="display:inline;">
-    {% csrf_token %}
-    {% if match.team1 in user.favorite_teams.all %}
-      <button type="submit" class="btn btn-warning">★ {{ match.team1.name }} entfernen</button>
-    {% else %}
-      <button type="submit" class="btn btn-outline-warning">☆ {{ match.team1.name }} favorisieren</button>
-    {% endif %}
-  </form>
-  <form action="{% url 'toggle_favorite' match.team2.id %}" method="post" style="display:inline;">
-    {% csrf_token %}
-    {% if match.team2 in user.favorite_teams.all %}
-      <button type="submit" class="btn btn-warning">★ {{ match.team2.name }} entfernen</button>
-    {% else %}
-      <button type="submit" class="btn btn-outline-warning">☆ {{ match.team2.name }} favorisieren</button>
-    {% endif %}
-  </form>
+  <div class="d-flex justify-content-center gap-3 mb-4">
+    <form action="{% url 'toggle_favorite' match.team1.id %}" method="post" class="favorite-form">
+      {% csrf_token %}
+      <button type="submit" class="btn {% if is_team1_favorite %}btn-warning active{% else %}btn-outline-warning{% endif %}">
+        <span class="favorite-star">{% if is_team1_favorite %}★{% else %}☆{% endif %}</span>
+        {{ match.team1.name }}
+      </button>
+    </form>
+    
+    <form action="{% url 'toggle_favorite' match.team2.id %}" method="post" class="favorite-form">
+      {% csrf_token %}
+      <button type="submit" class="btn {% if is_team2_favorite %}btn-warning active{% else %}btn-outline-warning{% endif %}">
+        <span class="favorite-star">{% if is_team2_favorite %}★{% else %}☆{% endif %}</span>
+        {{ match.team2.name }}
+      </button>
+    </form>
+  </div>
 {% endif %}
 
 <div class="text-center text-white bg-dark py-4">
@@ -100,6 +101,32 @@
 <!-- AJAX Script -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+  $(document).ready(function() {
+  $('.favorite-form').submit(function(e) {
+    e.preventDefault();
+    var form = $(this);
+    var button = form.find('button');
+    
+    $.ajax({
+      type: 'POST',
+      url: form.attr('action'),
+      data: form.serialize(),
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      success: function(response) {
+        if(response.status === 'added') {
+          button.removeClass('btn-outline-warning').addClass('btn-warning active');
+          button.find('.favorite-star').text('★');
+        } else {
+          button.removeClass('btn-warning active').addClass('btn-outline-warning');
+          button.find('.favorite-star').text('☆');
+        }
+      }
+    });
+  });
+});
+
 $(document).ready(function() {
     $('#comment-form').submit(function(e) {
         e.preventDefault();

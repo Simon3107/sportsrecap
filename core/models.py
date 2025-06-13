@@ -18,8 +18,12 @@ class Tournament(models.Model):
         return f"{self.name}"
 
 class Team(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
+    sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
     logo = models.ImageField(upload_to='team_logos/', null=True, blank=True)
+
+    class Meta:
+        unique_together = ('name', 'sport')
 
     def __str__(self):
         return self.name

@@ -4,6 +4,7 @@ from .views import add_comment, CustomLoginView, CustomLogoutView, register
 
 urlpatterns = [
     path('ajax/load-tournaments/', views.load_tournaments, name='load_tournaments'),
+    path('ajax/load-teams/', views.load_teams, name='load_teams'),
     path('', views.home, name='index'),
     path('sports/', views.sport_list, name='sport_list'),
     path('match/<int:id>/', views.match_detail, name='match_detail'),

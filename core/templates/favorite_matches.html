@@ -2,18 +2,36 @@
 {% block title %}Meine Favoriten{% endblock %}
 
 {% block content %}
-  <h1>Spiele deiner Lieblings-Teams</h1>
-  {% if matches %}
-    {% for match in matches %}
-      <div class="card my-2 p-3">
-        <a href="{% url 'match_detail' match.id %}">
-          <strong>{{ match.team1.name }}</strong> {{ match.score }} <strong>{{ match.team2.name }}</strong>
-          <br>
-          <small>{{ match.match_date|date:"d.m.Y" }} | {{ match.tournament.name }}</small>
-        </a>
-      </div>
+<div class="container">
+  <h1 class="mb-4">Spiele deiner Lieblings-Teams</h1>
+
+  {% if sports_data %}
+    {% for sport_data in sports_data %}
+      <h2 class="mt-4">{{ sport_data.sport.name }}</h2>
+
+      {% for tournament, matches in sport_data.tournaments.items %}
+        <h3 class="text-warning mt-3">{{ tournament.name }}</h3>
+        
+        {% for match in matches %}
+          <div class="card bg-dark text-white mb-3 shadow-sm border border-danger">
+            <div class="card-body">
+              <a href="{% url 'match_detail' match.id %}" class="text-decoration-none text-white">
+                <h5 class="card-title">
+                  {{ match.team1.name }} <span class="text-danger">{{ match.score }}</span> {{ match.team2.name }}
+                </h5>
+                <p class="card-text">
+                  <small class="text-muted">{{ match.match_date|date:"d.m.Y" }}</small>
+                </p>
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      {% endfor %}
     {% endfor %}
   {% else %}
-    <p>Du hast noch keine Spiele von favorisierten Teams.</p>
+    <div class="alert alert-info">
+      Du hast noch keine Spiele von favorisierten Teams.
+    </div>
   {% endif %}
+</div>
 {% endblock %}

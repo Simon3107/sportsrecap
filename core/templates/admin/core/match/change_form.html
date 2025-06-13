@@ -3,17 +3,24 @@
 {% block extrahead %}
 {{ block.super }}
 <script>
-// WICHTIG: Nutzt Djangos eingebautes jQuery
 (django.jQuery)(function($) {
-    // 1. Turniere laden bei Sport-Änderung
+    // 1. Teams und Turniere laden bei Sport-Änderung
     $('#id_sport').change(function() {
         var sportId = $(this).val();
-        $.get('{% url "load_tournaments" %}?sport_id=' + sportId, function(data) {
-            $('#id_tournament').html(data);
+        
+        // Teams laden
+        $.get('{% url "load_teams" %}?sport_id=' + sportId, function(teamsData) {
+            $('#id_team1').html(teamsData);
+            $('#id_team2').html(teamsData);
+        });
+        
+        // Turniere laden
+        $.get('{% url "load_tournaments" %}?sport_id=' + sportId, function(tournamentsData) {
+            $('#id_tournament').html(tournamentsData);
         });
     });
     
-    // 2. Initial laden wenn Sport vorausgewählt ist (bei Bearbeitung)
+    // 2. Initial laden wenn Sport vorausgewählt ist
     if ($('#id_sport').val()) {
         $('#id_sport').trigger('change');
     }

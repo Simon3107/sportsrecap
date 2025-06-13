@@ -64,10 +64,27 @@ def sport_list(request):
 def match_detail(request, id):
     match = get_object_or_404(Match, pk=id)
     comments = Comment.objects.filter(match=match).order_by('-created_at')
+    
+    # Check if teams are favorited by the user
+    is_team1_favorite = False
+    is_team2_favorite = False
+    
+    if request.user.is_authenticated:
+        is_team1_favorite = FavoriteTeam.objects.filter(
+            user=request.user, 
+            team=match.team1
+        ).exists()
+        is_team2_favorite = FavoriteTeam.objects.filter(
+            user=request.user, 
+            team=match.team2
+        ).exists()
+    
     return render(request, 'match_detail.html', {
         'match': match,
         'comments': comments,
         'comment_form': CommentForm(),
+        'is_team1_favorite': is_team1_favorite,
+        'is_team2_favorite': is_team2_favorite,
     })
 
 @login_required
@@ -108,6 +125,11 @@ class CustomLogoutView(LogoutView):
         messages.success(request, "Erfolgreich ausgeloggt!")
         return super().dispatch(request, *args, **kwargs)
 
+def load_teams(request):
+    sport_id = request.GET.get('sport_id')
+    teams = Team.objects.filter(sport_id=sport_id)
+    return render(request, 'admin/core/match/team_options.html', {'teams': teams})
+
 # ---------- Ajax für Turnierauswahl ----------
 def load_tournaments(request):
     sport_id = request.GET.get('sport_id')
@@ -119,21 +141,50 @@ def load_tournaments(request):
 def toggle_favorite(request, team_id):
     team = get_object_or_404(Team, id=team_id)
     favorite, created = FavoriteTeam.objects.get_or_create(user=request.user, team=team)
-
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if not created:
+            favorite.delete()
+            return JsonResponse({'status': 'removed', 'team_id': team_id})
+        return JsonResponse({'status': 'added', 'team_id': team_id})
+    
     if not created:
-        favorite.delete()  # bereits Favorit → entfernen
-
+        favorite.delete()
+    
     return redirect(request.META.get('HTTP_REFERER', 'index'))
 
 # ---------- Favoriten-Seite ----------
 @login_required
 def favorite_matches(request):
-    favorite_team_ids = FavoriteTeam.objects.filter(
+    # Hole alle Favoriten inkl. Sportart des Teams
+    favorite_teams = FavoriteTeam.objects.filter(
         user=request.user
-    ).values_list('team_id', flat=True)
+    ).select_related('team__sport')
 
+    # IDs der favorisierten Teams
+    favorite_team_ids = [ft.team.id for ft in favorite_teams]
+    
+    # Filtere nur Matches mit den favorisierten Teams
     matches = Match.objects.filter(
         Q(team1__in=favorite_team_ids) | Q(team2__in=favorite_team_ids)
     ).order_by('-match_date')
 
-    return render(request, 'favorite_matches.html', {'matches': matches})
+    # Gruppierung nach Sportarten und Turnieren
+    sports_data = []
+    favorite_sports = Sport.objects.filter(
+        id__in=set(ft.team.sport.id for ft in favorite_teams)
+    )
+
+    for sport in favorite_sports:
+        sport_matches = matches.filter(sport=sport)
+        
+        tournaments = defaultdict(list)
+        for match in sport_matches:
+            tournaments[match.tournament].append(match)
+        
+        sports_data.append({
+            'sport': sport,
+            'tournaments': dict(tournaments)
+        })
+
+    return render(request, 'favorite_matches.html', {'sports_data': sports_data})
