@@ -1,0 +1,35 @@
+<!-- core/templates/core/includes/sport_matches_filter.html -->
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3">
+      <div class="col-md-4">
+        <label for="tournament" class="form-label">Turnier</label>
+        <select name="tournament" id="tournament" class="form-select">
+          <option value="">Alle Turniere</option>
+          {% for tournament in tournaments %}
+            <option value="{{ tournament.id }}" {% if selected_tournament == tournament.id %}selected{% endif %}>
+              {{ tournament.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="col-md-4">
+        <label for="team" class="form-label">Team</label>
+        <select name="team" id="team" class="form-select">
+          <option value="">Alle Teams</option>
+          {% for team in teams %}
+            <option value="{{ team.id }}" {% if selected_team == team.id %}selected{% endif %}>
+              {{ team.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary">Filtern</button>
+        <a href="{% url 'sport_matches' sport.id %}" class="btn btn-outline-secondary ms-2">Zurücksetzen</a>
+      </div>
+    </form>
+  </div>
+</div>

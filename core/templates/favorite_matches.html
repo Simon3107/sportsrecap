@@ -1,10 +1,67 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
 {% block title %}Meine Favoriten{% endblock %}
 
 {% block content %}
 <div class="container">
   <h1 class="mb-4">Spiele deiner Lieblings-Teams</h1>
 
+  <!-- Filter-Formular -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <form method="get" class="row g-3">
+        <!-- Sport-Filter -->
+        <div class="col-md-4">
+          <label for="sport" class="form-label">Sportart</label>
+          <select name="sport" id="sport" class="form-select">
+            <option value="">Alle Sportarten</option>
+            {% for sport in all_sports %}
+              <option value="{{ sport.id }}" 
+                {% if selected_sport == sport.id %}selected{% endif %}>
+                {{ sport.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <!-- Turnier-Filter -->
+        <div class="col-md-4">
+          <label for="tournament" class="form-label">Turnier</label>
+          <select name="tournament" id="tournament" class="form-select">
+            <option value="">Alle Turniere</option>
+            {% for tournament in all_tournaments %}
+              <option value="{{ tournament.id }}" 
+                {% if selected_tournament == tournament.id %}selected{% endif %}>
+                {{ tournament.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <!-- Team-Filter -->
+        <div class="col-md-4">
+          <label for="team" class="form-label">Mannschaft</label>
+          <select name="team" id="team" class="form-select">
+            <option value="">Alle Mannschaften</option>
+            {% for team in all_teams %}
+              <option value="{{ team.id }}" 
+                {% if selected_team == team.id %}selected{% endif %}>
+                {{ team.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <!-- Buttons -->
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Filtern</button>
+          <a href="{% url 'favorite_matches' %}" class="btn btn-outline-secondary ms-2">Zurücksetzen</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Ergebnisse -->
   {% if sports_data %}
     {% for sport_data in sports_data %}
       <h2 class="mt-4">{{ sport_data.sport.name }}</h2>
@@ -12,26 +69,54 @@
       {% for tournament, matches in sport_data.tournaments.items %}
         <h3 class="text-warning mt-3">{{ tournament.name }}</h3>
         
-        {% for match in matches %}
-          <div class="card bg-dark text-white mb-3 shadow-sm border border-danger">
-            <div class="card-body">
-              <a href="{% url 'match_detail' match.id %}" class="text-decoration-none text-white">
-                <h5 class="card-title">
-                  {{ match.team1.name }} <span class="text-danger">{{ match.score }}</span> {{ match.team2.name }}
-                </h5>
-                <p class="card-text">
-                  <small class="text-muted">{{ match.match_date|date:"d.m.Y" }}</small>
-                </p>
-              </a>
-            </div>
-          </div>
-        {% endfor %}
+        <ul class="list-group mb-4">
+          {% for match in matches %}
+            <a href="{% url 'match_detail' match.id %}" class="list-group-item list-group-item-action">
+              <strong>{{ match.team1.name }}</strong> vs <strong>{{ match.team2.name }}</strong> <br>
+              Ergebnis: {{ match.score }} <br>
+              Datum: {{ match.match_date|date:"d.m.Y" }}
+            </a>
+          {% endfor %}
+        </ul>
       {% endfor %}
     {% endfor %}
   {% else %}
     <div class="alert alert-info">
-      Du hast noch keine Spiele von favorisierten Teams.
+      {% if selected_sport or selected_tournament or selected_team %}
+        Keine Spiele gefunden, die den Filterkriterien entsprechen.
+      {% else %}
+        Du hast noch keine Spiele von favorisierten Teams.
+      {% endif %}
     </div>
   {% endif %}
 </div>
+
+<!-- JavaScript für dynamische Filter -->
+<script>
+$(document).ready(function() {
+  // Turnier-Filter basierend auf Sportart aktualisieren
+  $('#sport').change(function() {
+    const sportId = $(this).val();
+    if (sportId) {
+      $.get(`/ajax/load-tournaments/?sport_id=${sportId}`, function(data) {
+        $('#tournament').html('<option value="">Alle Turniere</option>' + data);
+      });
+    } else {
+      $('#tournament').html('<option value="">Alle Turniere</option>');
+    }
+  });
+
+  // Team-Filter basierend auf Sportart aktualisieren
+  $('#sport').change(function() {
+    const sportId = $(this).val();
+    if (sportId) {
+      $.get(`/ajax/load-teams/?sport_id=${sportId}`, function(data) {
+        $('#team').html('<option value="">Alle Mannschaften</option>' + data);
+      });
+    } else {
+      $('#team').html('<option value="">Alle Mannschaften</option>');
+    }
+  });
+});
+</script>
 {% endblock %}

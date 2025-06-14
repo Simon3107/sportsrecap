@@ -110,8 +110,32 @@ def profile(request):
 
 def sport_matches(request, id):
     sport = get_object_or_404(Sport, pk=id)
+    
+    # Basis-QuerySet
     matches = Match.objects.filter(sport=sport)
-    return render(request, 'sport_matches.html', {'sport': sport, 'matches': matches})
+    
+    # Filterparameter aus GET-Request
+    tournament_id = request.GET.get('tournament')
+    team_id = request.GET.get('team')
+    
+    # Filter anwenden
+    if tournament_id:
+        matches = matches.filter(tournament_id=tournament_id)
+    if team_id:
+        matches = matches.filter(Q(team1_id=team_id) | Q(team2_id=team_id))
+    
+    # Daten für Filter-Dropdowns sammeln
+    tournaments = Tournament.objects.filter(sport=sport)
+    teams = Team.objects.filter(sport=sport)
+    
+    return render(request, 'sport_matches.html', {
+        'sport': sport,
+        'matches': matches.order_by('-match_date'),
+        'tournaments': tournaments,
+        'teams': teams,
+        'selected_tournament': int(tournament_id) if tournament_id else None,
+        'selected_team': int(team_id) if team_id else None,
+    })
 
 # ---------- Auth Views ----------
 class CustomLoginView(LoginView):
@@ -136,6 +160,24 @@ def load_tournaments(request):
     tournaments = Tournament.objects.filter(sport_id=sport_id)
     return render(request, 'admin/core/match/tournament_options.html', {'tournaments': tournaments})
 
+
+def load_filter_options(request):
+    sport_id = request.GET.get('sport_id')
+    option_type = request.GET.get('type')  # 'teams' oder 'tournaments'
+    
+    if not sport_id or option_type not in ['teams', 'tournaments']:
+        return HttpResponse('')
+    
+    if option_type == 'teams':
+        queryset = Team.objects.filter(sport_id=sport_id)
+    else:
+        queryset = Tournament.objects.filter(sport_id=sport_id)
+    
+    return render(request, 'core/includes/filter_options.html', {
+        'items': queryset,
+        'item_type': option_type
+    })
+    
 # ---------- Favoriten-Toggle ----------
 @login_required
 def toggle_favorite(request, team_id):
@@ -156,35 +198,63 @@ def toggle_favorite(request, team_id):
 # ---------- Favoriten-Seite ----------
 @login_required
 def favorite_matches(request):
-    # Hole alle Favoriten inkl. Sportart des Teams
+    # Basisabfrage für favorisierte Teams des Users
     favorite_teams = FavoriteTeam.objects.filter(
         user=request.user
     ).select_related('team__sport')
 
-    # IDs der favorisierten Teams
-    favorite_team_ids = [ft.team.id for ft in favorite_teams]
-    
-    # Filtere nur Matches mit den favorisierten Teams
-    matches = Match.objects.filter(
-        Q(team1__in=favorite_team_ids) | Q(team2__in=favorite_team_ids)
-    ).order_by('-match_date')
+    # Filterparameter aus GET-Request
+    sport_id = request.GET.get('sport')
+    tournament_id = request.GET.get('tournament')
+    team_id = request.GET.get('team')
 
-    # Gruppierung nach Sportarten und Turnieren
-    sports_data = []
-    favorite_sports = Sport.objects.filter(
-        id__in=set(ft.team.sport.id for ft in favorite_teams)
+    # Matches der favorisierten Teams filtern
+    matches = Match.objects.filter(
+        Q(team1__in=[ft.team.id for ft in favorite_teams]) | 
+        Q(team2__in=[ft.team.id for ft in favorite_teams])
     )
 
-    for sport in favorite_sports:
+    # Filter anwenden
+    if sport_id:
+        matches = matches.filter(sport_id=sport_id)
+    if tournament_id:
+        matches = matches.filter(tournament_id=tournament_id)
+    if team_id:
+        matches = matches.filter(Q(team1_id=team_id) | Q(team2_id=team_id))
+
+    # Daten für Filter-Dropdowns sammeln
+    sports = Sport.objects.filter(
+        id__in=set(ft.team.sport.id for ft in favorite_teams)
+    )
+    tournaments = Tournament.objects.filter(
+        id__in=matches.values_list('tournament', flat=True).distinct()
+    )
+    teams = Team.objects.filter(
+        id__in=set([ft.team.id for ft in favorite_teams])
+    )
+
+    # Gruppierung für die Anzeige
+    sports_data = []
+    for sport in sports:
         sport_matches = matches.filter(sport=sport)
-        
-        tournaments = defaultdict(list)
+        if not sport_matches.exists():
+            continue
+            
+        tournaments_data = defaultdict(list)
         for match in sport_matches:
-            tournaments[match.tournament].append(match)
+            tournaments_data[match.tournament].append(match)
         
         sports_data.append({
             'sport': sport,
-            'tournaments': dict(tournaments)
+            'tournaments': dict(tournaments_data)
         })
 
-    return render(request, 'favorite_matches.html', {'sports_data': sports_data})
+    return render(request, 'favorite_matches.html', {
+        'sports_data': sports_data,
+        'all_sports': sports,
+        'all_tournaments': tournaments,
+        'all_teams': teams,
+        'selected_sport': int(sport_id) if sport_id else None,
+        'selected_tournament': int(tournament_id) if tournament_id else None,
+        'selected_team': int(team_id) if team_id else None,
+    })

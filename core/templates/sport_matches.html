@@ -5,6 +5,8 @@
 {% block content %}
   <h2>Spiele in {{ sport.name }}</h2>
 
+  {% include 'filter_template.html' %}
+
   {% if matches %}
     <ul class="list-group">
       {% for match in matches %}
