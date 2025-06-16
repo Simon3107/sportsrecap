@@ -6,6 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView, LogoutView
 from django.db.models import Q
 from collections import defaultdict
+from itertools import chain
 
 from .models import (
     Sport,
@@ -105,8 +106,30 @@ def add_comment(request, match_id):
         return JsonResponse({'success': False, 'errors': form.errors})
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
+@login_required
 def profile(request):
-    return render(request, 'profile.html')
+    user = request.user
+
+    # Kommentare des Benutzers
+    comments = Comment.objects.filter(user=user).order_by('-created_at')
+
+    # Favorisierte Teams
+    favorite_teams = FavoriteTeam.objects.filter(user=user).select_related('team')
+
+    # Letzte Spiele je Team (z. B. 5)
+    team_matches = {}
+    for fav in favorite_teams:
+        team = fav.team
+        matches = Match.objects.filter(
+            Q(team1=team) | Q(team2=team)
+        ).order_by('-match_date')[:5]
+        team_matches[team] = matches
+
+    return render(request, 'profile.html', {
+        'comments': comments,
+        'favorite_teams': favorite_teams,
+        'team_matches': team_matches,
+    })
 
 def sport_matches(request, id):
     sport = get_object_or_404(Sport, pk=id)
@@ -257,4 +280,40 @@ def favorite_matches(request):
         'selected_sport': int(sport_id) if sport_id else None,
         'selected_tournament': int(tournament_id) if tournament_id else None,
         'selected_team': int(team_id) if team_id else None,
+    })
+@login_required
+def search(request):
+    query = request.GET.get("q", "").strip()
+
+    if not query:
+        return redirect('index')
+
+    # Suche nach Turnieren und Teams
+    matching_tournaments = Tournament.objects.filter(name__icontains=query)
+    matching_teams = Team.objects.filter(name__icontains=query)
+
+    # Alle Spiele, bei denen Team1, Team2 oder das Turnier dem Query entspricht
+    matches = Match.objects.filter(
+        Q(team1__name__icontains=query) |
+        Q(team2__name__icontains=query) |
+        Q(tournament__name__icontains=query)
+    ).distinct()
+
+    # Wenn nur ein Spiel gefunden wurde und keine Teams oder Turniere → direkt zur Detailansicht
+    if matches.count() == 1 and not matching_tournaments.exists() and not matching_teams.exists():
+        return redirect('match_detail', id=matches.first().id)
+
+    # Teams + ihre Spiele vorbereiten
+    teams_with_matches = []
+    for team in matching_teams:
+        team_matches = Match.objects.filter(
+            Q(team1=team) | Q(team2=team)
+        ).order_by('-match_date')
+        teams_with_matches.append((team, team_matches))
+
+    return render(request, 'search_results.html', {
+        'query': query,
+        'teams_with_matches': teams_with_matches,
+        'tournaments': matching_tournaments,
+        'matches': matches,
     })

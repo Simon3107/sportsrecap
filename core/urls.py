@@ -20,5 +20,7 @@ urlpatterns = [
     # 👇 Neue URL für Favoriten-Funktion:
     path('favorit/<int:team_id>/', views.toggle_favorite, name='toggle_favorite'),
     path('favoriten/', views.favorite_matches, name='favorite_matches'),
+    path('suche/', views.search, name='search'),
+
 ]
 

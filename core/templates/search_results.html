@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Suchergebnisse für: "{{ query }}"</h2>
+
+{% if teams_with_matches %}
+  <h3>🔵 Teams</h3>
+  {% for team, matches in teams_with_matches %}
+    <h5>{{ team.name }}</h5>
+    <ul>
+      {% for match in matches %}
+        <li>
+          <a href="{% url 'match_detail' match.id %}">
+            {{ match.match_date }} – {{ match.team1.name }} vs {{ match.team2.name }}
+          </a>
+        </li>
+      {% empty %}
+        <li>Keine Spiele für dieses Team gefunden.</li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+{% endif %}
+
+{% if tournaments %}
+  <h3>🏆 Turniere</h3>
+  {% for tournament in tournaments %}
+    <h5>{{ tournament.name }}</h5>
+    <ul>
+      {% for match in tournament.match_set.all %}
+        <li>
+          <a href="{% url 'match_detail' match.id %}">
+            {{ match.match_date }} – {{ match.team1.name }} vs {{ match.team2.name }}
+          </a>
+        </li>
+      {% empty %}
+        <li>Keine Spiele im Turnier gefunden.</li>
+      {% endfor %}
+    </ul>
+  {% endfor %}
+{% endif %}
+
+{% if matches and not teams_with_matches and not tournaments %}
+  <h3>⚽ Spiele</h3>
+  <ul>
+    {% for match in matches %}
+      <li>
+        <a href="{% url 'match_detail' match.id %}">
+          {{ match.match_date }} – {{ match.team1.name }} vs {{ match.team2.name }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% if not teams_with_matches and not tournaments and not matches %}
+  <p>Keine Ergebnisse gefunden.</p>
+{% endif %}
+{% endblock %}
