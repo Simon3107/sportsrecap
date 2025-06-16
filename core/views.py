@@ -258,3 +258,27 @@ def favorite_matches(request):
         'selected_tournament': int(tournament_id) if tournament_id else None,
         'selected_team': int(team_id) if team_id else None,
     })
+@login_required
+def profile(request):
+    user = request.user
+
+    # Alle Kommentare des Users
+    comments = Comment.objects.filter(user=user).order_by('-created_at')
+
+    # Favorisierte Teams
+    favorite_teams = FavoriteTeam.objects.filter(user=user).select_related('team')
+
+    # Für jedes favorisierte Team: Letzte 5 Spiele
+    team_matches = {}
+    for fav in favorite_teams:
+        team = fav.team
+        recent_matches = Match.objects.filter(
+            Q(team1=team) | Q(team2=team)
+        ).order_by('-match_date')[:5]
+        team_matches[team] = recent_matches
+
+    return render(request, 'profile.html', {
+        'comments': comments,
+        'favorite_teams': favorite_teams,
+        'team_matches': team_matches,
+    })

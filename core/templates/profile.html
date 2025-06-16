@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>👤 Dein Profil</h1>
+
+<h2>🗨️ Deine Kommentare</h2>
+<ul>
+  {% for comment in comments %}
+    <li>
+        <strong>
+            <a href="{% url 'match_detail' comment.match.id %}">
+              {{ comment.match }}
+            </a>
+          </strong><br>
+      <em>{{ comment.created_at|date:"d.m.Y H:i" }}</em><br>
+      {{ comment.text }}
+    </li>
+  {% empty %}
+    <li>Du hast noch keine Kommentare geschrieben.</li>
+  {% endfor %}
+</ul>
+
+<h2>⭐ Deine favorisierten Teams</h2>
+{% for team, matches in team_matches.items %}
+  <div style="margin-bottom: 30px;">
+    <h3>
+        {{ team.name }}
+        <form method="post" action="{% url 'toggle_favorite' team.id %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-danger ms-2">
+            Entfernen ✖
+          </button>
+        </form>
+      </h3>
+      
+    {% if team.logo %}
+      <img src="{{ team.logo.url }}" alt="{{ team.name }}" height="50">
+    {% endif %}
+
+    <h4>Letzte Spiele:</h4>
+    <ul>
+      {% for match in matches %}
+      <li>
+        <a href="{% url 'match_detail' match.id %}">
+          {{ match.match_date }} – {{ match.team1.name }} vs {{ match.team2.name }} ({{ match.score }})
+          <br>
+          <small class="text-danger fw-bold">{{ match.tournament.name }}</small>
+        </a>
+      </li>
+      
+      {% empty %}
+        <li>Keine Spiele gefunden.</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% empty %}
+  <p>Du hast noch keine Teams als Favoriten.</p>
+{% endfor %}
+{% endblock %}

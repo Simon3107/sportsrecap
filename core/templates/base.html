@@ -34,8 +34,9 @@
           </form>
         </li>
         <li class="nav-item">
-          <span class="nav-link disabled">👤 {{ user.username }}</span>
+          <a class="nav-link" href="{% url 'profile' %}">👤 {{ user.username }}</a>
         </li>
+        
         <li class="nav-item">
           <a class="nav-link" href="{% url 'favorite_matches' %}">⭐ Favoriten</a>
         </li>
