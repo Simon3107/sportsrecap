@@ -35,9 +35,12 @@
 
   <!-- Team 1 -->
   <div class="text-center mx-3">
-    <img src="{% if match.team1.logo %}{{ match.team1.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}"
-         alt="{{ match.team1.name }}" width="50" height="50" class="mb-1">
-    <h5>{{ match.team1.name }}</h5>
+    <a href="{% url 'sport_matches' match.sport.id %}?team={{ match.team1.id }}">
+      <img src="{% if match.team1.logo %}{{ match.team1.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}"
+          alt="{{ match.team1.name }}" width="50" height="50" class="mb-1">
+      <h5>{{ match.team1.name }}</h5>
+    </a>
+    
   </div>
 
   <!-- Score -->
@@ -47,9 +50,12 @@
 
   <!-- Team 2 -->
   <div class="text-center mx-3">
-    <img src="{% if match.team2.logo %}{{ match.team2.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}"
-         alt="{{ match.team2.name }}" width="50" height="50" class="mb-1">
-    <h5>{{ match.team2.name }}</h5>
+    <a href="{% url 'sport_matches' match.sport.id %}?team={{ match.team2.id }}">
+      <img src="{% if match.team2.logo %}{{ match.team2.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}"
+          alt="{{ match.team2.name }}" width="50" height="50" class="mb-1">
+      <h5>{{ match.team2.name }}</h5>
+    </a>
+    
   </div>
 
 </div>

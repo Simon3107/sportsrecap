@@ -5,11 +5,21 @@
 <h1 class="mb-4">Neueste Spiele</h1>
 
 {% for sport_data in data %}
-  <h2 class="mt-4">{{ sport_data.sport.name }}</h2>
+  <h2 class="mt-4">
+  <a href="{% url 'sport_matches' sport_data.sport.id %}" class="text-decoration-none text-light">
+    {{ sport_data.sport.name }}
+  </a>
+</h2>
 
   {% for tournament, match in sport_data.tournaments_latest.items %}
 
-    <h3 class="text-warning mt-3">{{ tournament }}</h3>
+    <h3 class="text-warning mt-3">
+      <a class="text-warning text-decoration-none"
+        href="{% url 'sport_matches' sport_data.sport.id %}?tournament={{ tournament.id }}">
+        {{ tournament.name }}
+      </a>
+    </h3>
+
 
     <div class="card bg-dark text-white mb-3 shadow-sm border border-danger">
       <div class="card-body">

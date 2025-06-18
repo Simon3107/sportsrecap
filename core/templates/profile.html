@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% if request.user.is_staff %}
+  <p>
+    <a href="{% url 'admin:index' %}" class="btn btn-sm btn-warning">🔧 Adminbereich öffnen</a>
+  </p>
+{% endif %}
+
 <h1>👤 Dein Profil</h1>
 
 <h2>🗨️ Deine Kommentare</h2>
@@ -24,17 +30,22 @@
 {% for team, matches in team_matches.items %}
   <div style="margin-bottom: 30px;">
     <h3>
+      <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}" class="text-decoration-none text-dark">
         {{ team.name }}
-        <form method="post" action="{% url 'toggle_favorite' team.id %}" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-sm btn-outline-danger ms-2">
-            Entfernen ✖
-          </button>
-        </form>
-      </h3>
+      </a>
+      
+      <form method="post" action="{% url 'toggle_favorite' team.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-outline-danger ms-2">
+          Entfernen ✖
+        </button>
+      </form>
+    </h3>
       
     {% if team.logo %}
-      <img src="{{ team.logo.url }}" alt="{{ team.name }}" height="50">
+      <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}">
+        <img src="{{ team.logo.url }}" alt="{{ team.name }}" height="50">
+      </a>
     {% endif %}
 
     <h4>Letzte Spiele:</h4>
