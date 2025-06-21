@@ -30,7 +30,7 @@
 {% for team, matches in team_matches.items %}
   <div style="margin-bottom: 30px;">
     <h3>
-      <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}" class="text-decoration-none text-dark">
+      <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}" class="text-decoration-none text-white">
         {{ team.name }}
       </a>
       

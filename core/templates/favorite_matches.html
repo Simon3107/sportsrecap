@@ -72,9 +72,19 @@
   <!-- Ergebnisse -->
   {% if sports_data %}
     {% for sport_data in sports_data %}
-      <h2 class="mt-4">{{ sport_data.sport.name }}</h2>
+      <h2 class="mt-4">
+        <a href="{% url 'sport_matches' sport_data.sport.id %}" class="text-decoration-none text-white">
+          {{ sport_data.sport.name }}
+        </a>
+      </h2>
+
       {% for tournament, matches in sport_data.tournaments.items %}
-        <h3 class="text-warning mt-3">{{ tournament.name }}</h3>
+        <h3 class="text-warning mt-3">
+          <a href="{% url 'sport_matches' sport_data.sport.id %}?tournament={{ tournament.id }}" class="text-warning text-decoration-none">
+            {{ tournament.name }}
+          </a>
+        </h3>
+
         <ul class="list-group mb-4">
           {% for match in matches %}
             <a href="{% url 'match_detail' match.id %}" class="list-group-item list-group-item-action">
