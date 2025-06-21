@@ -25,23 +25,25 @@
         </li>
         {% endfor %}
       </ul>
-      <ul class="navbar-nav">
+
+      <ul class="navbar-nav align-items-center">
         {% if user.is_authenticated %}
-        <form method="get" action="{% url 'search' %}" class="d-flex ms-3" role="search">
-          <input class="form-control me-2" type="search" name="q" placeholder="Suche nach Team, Turnier oder Spiel..." aria-label="Suche">
-          <button class="btn btn-outline-light" type="submit">🔍</button>
-        </form>
-        
+
+        <!-- 🔍 Live-Suchfeld -->
+        <li class="nav-item position-relative me-3" style="min-width: 250px;">
+          <input id="live-search" class="form-control" type="text" placeholder="Suche..." autocomplete="off">
+          <div id="search-results" class="list-group position-absolute w-100" style="top: 100%; z-index: 9999;"></div>
+        </li>
+
         <li class="nav-item">
           <form action="{% url 'logout' %}" method="post" style="display: inline;">
               {% csrf_token %}
-              <button type="submit" class="btn btn-link">Logout</button>
+              <button type="submit" class="btn btn-link text-white">Logout</button>
           </form>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{% url 'profile' %}">👤 {{ user.username }}</a>
         </li>
-        
         <li class="nav-item">
           <a class="nav-link" href="{% url 'favorite_matches' %}">⭐ Favoriten</a>
         </li>
@@ -91,7 +93,6 @@
 </style>
 
 <script>
-// Sicherstellen, dass Notifications entfernt werden
 setTimeout(() => {
     document.querySelectorAll('.notification').forEach(el => el.remove());
 }, 3500);
@@ -109,6 +110,39 @@ setTimeout(() => {
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ✅ JavaScript für Live-Suche -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const input = document.getElementById('live-search');
+  const results = document.getElementById('search-results');
+  let timer;
+
+  input.addEventListener('input', function () {
+    clearTimeout(timer);
+    const query = this.value.trim();
+
+    if (!query) {
+      results.innerHTML = '';
+      return;
+    }
+
+    timer = setTimeout(() => {
+      fetch(`/ajax/live-search/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+          results.innerHTML = data.html;
+        });
+    }, 300);
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!results.contains(e.target) && e.target !== input) {
+      results.innerHTML = '';
+    }
+  });
+});
+</script>
+
 </body>
 </html>
-

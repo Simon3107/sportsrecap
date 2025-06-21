@@ -1,58 +1,66 @@
 {% extends 'base.html' %}
-
 {% block title %}Meine Favoriten{% endblock %}
-
 {% block content %}
 <div class="container">
   <h1 class="mb-4">Spiele deiner Lieblings-Teams</h1>
+
+  <!-- 🔍 Favoriten-Suchfeld + Hinzufügen -->
+  <h2 class="mt-5">⚙️ Favoriten verwalten</h2>
+  <div class="mb-4">
+    <input type="text" id="team-search" class="form-control" placeholder="Team suchen...">
+  </div>
+
+  <div id="team-list">
+    {% for group in sports_with_teams %}
+      <h5 class="mt-4">{{ group.sport.name }}</h5>
+      <div class="row mb-3">
+        {% for team in group.teams %}
+          <div class="col-md-3 team-item" data-name="{{ team.name|lower }}">
+            <div class="d-flex align-items-center justify-content-between border p-2 rounded">
+              <span>{{ team.name }}</span>
+              <button class="btn btn-sm {% if team.id in favorite_ids %}btn-warning{% else %}btn-outline-secondary{% endif %} toggle-fav" data-team-id="{{ team.id }}">
+                {% if team.id in favorite_ids %}★{% else %}+{% endif %}
+              </button>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <hr>
 
   <!-- Filter-Formular -->
   <div class="card mb-4">
     <div class="card-body">
       <form method="get" class="row g-3">
-        <!-- Sport-Filter -->
         <div class="col-md-4">
           <label for="sport" class="form-label">Sportart</label>
           <select name="sport" id="sport" class="form-select">
             <option value="">Alle Sportarten</option>
             {% for sport in all_sports %}
-              <option value="{{ sport.id }}" 
-                {% if selected_sport == sport.id %}selected{% endif %}>
-                {{ sport.name }}
-              </option>
+              <option value="{{ sport.id }}" {% if selected_sport == sport.id %}selected{% endif %}>{{ sport.name }}</option>
             {% endfor %}
           </select>
         </div>
-        
-        <!-- Turnier-Filter -->
         <div class="col-md-4">
           <label for="tournament" class="form-label">Turnier</label>
           <select name="tournament" id="tournament" class="form-select">
             <option value="">Alle Turniere</option>
             {% for tournament in all_tournaments %}
-              <option value="{{ tournament.id }}" 
-                {% if selected_tournament == tournament.id %}selected{% endif %}>
-                {{ tournament.name }}
-              </option>
+              <option value="{{ tournament.id }}" {% if selected_tournament == tournament.id %}selected{% endif %}>{{ tournament.name }}</option>
             {% endfor %}
           </select>
         </div>
-        
-        <!-- Team-Filter -->
         <div class="col-md-4">
           <label for="team" class="form-label">Mannschaft</label>
           <select name="team" id="team" class="form-select">
             <option value="">Alle Mannschaften</option>
             {% for team in all_teams %}
-              <option value="{{ team.id }}" 
-                {% if selected_team == team.id %}selected{% endif %}>
-                {{ team.name }}
-              </option>
+              <option value="{{ team.id }}" {% if selected_team == team.id %}selected{% endif %}>{{ team.name }}</option>
             {% endfor %}
           </select>
         </div>
-        
-        <!-- Buttons -->
         <div class="col-12">
           <button type="submit" class="btn btn-primary">Filtern</button>
           <a href="{% url 'favorite_matches' %}" class="btn btn-outline-secondary ms-2">Zurücksetzen</a>
@@ -65,15 +73,13 @@
   {% if sports_data %}
     {% for sport_data in sports_data %}
       <h2 class="mt-4">{{ sport_data.sport.name }}</h2>
-
       {% for tournament, matches in sport_data.tournaments.items %}
         <h3 class="text-warning mt-3">{{ tournament.name }}</h3>
-        
         <ul class="list-group mb-4">
           {% for match in matches %}
             <a href="{% url 'match_detail' match.id %}" class="list-group-item list-group-item-action">
-              <strong>{{ match.team1.name }}</strong> vs <strong>{{ match.team2.name }}</strong> <br>
-              Ergebnis: {{ match.score }} <br>
+              <strong>{{ match.team1.name }}</strong> vs <strong>{{ match.team2.name }}</strong><br>
+              Ergebnis: {{ match.score }}<br>
               Datum: {{ match.match_date|date:"d.m.Y" }}
             </a>
           {% endfor %}
@@ -91,31 +97,45 @@
   {% endif %}
 </div>
 
-<!-- JavaScript für dynamische Filter -->
 <script>
-$(document).ready(function() {
-  // Turnier-Filter basierend auf Sportart aktualisieren
-  $('#sport').change(function() {
-    const sportId = $(this).val();
-    if (sportId) {
-      $.get(`/ajax/load-tournaments/?sport_id=${sportId}`, function(data) {
-        $('#tournament').html('<option value="">Alle Turniere</option>' + data);
-      });
-    } else {
-      $('#tournament').html('<option value="">Alle Turniere</option>');
-    }
+document.addEventListener('DOMContentLoaded', function () {
+  const searchInput = document.getElementById('team-search');
+  const teamItems = document.querySelectorAll('.team-item');
+
+  searchInput.addEventListener('input', function () {
+    const query = this.value.toLowerCase();
+    teamItems.forEach(item => {
+      const name = item.dataset.name;
+      item.style.display = name.includes(query) ? 'block' : 'none';
+    });
   });
 
-  // Team-Filter basierend auf Sportart aktualisieren
-  $('#sport').change(function() {
-    const sportId = $(this).val();
-    if (sportId) {
-      $.get(`/ajax/load-teams/?sport_id=${sportId}`, function(data) {
-        $('#team').html('<option value="">Alle Mannschaften</option>' + data);
+  document.querySelectorAll('.toggle-fav').forEach(button => {
+    button.addEventListener('click', function () {
+      const teamId = this.dataset.teamId;
+      fetch(`/favorit/${teamId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'added') {
+          this.classList.remove('btn-outline-secondary');
+          this.classList.add('btn-warning');
+          this.textContent = '★';
+        } else {
+          this.classList.remove('btn-warning');
+          this.classList.add('btn-outline-secondary');
+          this.textContent = '+';
+        }
+
+        // 🔄 Seite neuladen, damit Spiele neu gerendert werden
+        location.reload();
       });
-    } else {
-      $('#team').html('<option value="">Alle Mannschaften</option>');
-    }
+    });
   });
 });
 </script>

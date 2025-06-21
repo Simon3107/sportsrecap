@@ -1,0 +1,29 @@
+{% if teams or tournaments or matches %}
+  <ul class="list-group">
+    {% for team in teams %}
+      <li class="list-group-item">
+        <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}">
+          🔵 Team: {{ team.name }}
+        </a>
+      </li>
+    {% endfor %}
+
+    {% for tournament in tournaments %}
+      <li class="list-group-item">
+        <a href="{% url 'sport_matches' tournament.sport.id %}?tournament={{ tournament.id }}">
+          🏆 Turnier: {{ tournament.name }}
+        </a>
+      </li>
+    {% endfor %}
+
+    {% for match in matches %}
+      <li class="list-group-item">
+        <a href="{% url 'match_detail' match.id %}">
+          ⚽ Spiel: {{ match.team1.name }} vs {{ match.team2.name }} ({{ match.match_date }})
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="text-muted px-2">Keine Treffer</p>
+{% endif %}

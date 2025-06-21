@@ -21,6 +21,10 @@ urlpatterns = [
     path('favorit/<int:team_id>/', views.toggle_favorite, name='toggle_favorite'),
     path('favoriten/', views.favorite_matches, name='favorite_matches'),
     path('suche/', views.search, name='search'),
+    path('ajax/live-search/', views.ajax_live_search, name='ajax_live_search'),
+    path('favoriten/bearbeiten/', views.favorite_team_browser, name='favorite_team_browser'),
+
+
 
 ]
 
