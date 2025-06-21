@@ -1,78 +1,233 @@
-/* === GLOBAL === */
+/* === GLOBAL STYLES === */
+html {
+    background-color: #1a1a1a;
+}
+
 body {
     background-color: #121212;
     color: #ffffff;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
     margin: 0;
     padding: 0;
-  }
-  
-  /* === NAVBAR === */
-  .navbar {
-    background-color: #e50914 !important;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  }
-  
-  .navbar-brand, .nav-link {
-    color: #fff !important;
-    font-weight: 600;
-  }
-  
-  .nav-link:hover {
-    color: #ffd700 !important;
-  }
-  
-  /* === MAIN CONTAINER === */
-  main.container {
-    background-color: #1f1f1f;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
-  }
-  
-  /* === FOOTER === */
-  footer {
-    background-color: #000;
-    color: #bbb;
-    font-size: 0.9rem;
-  }
-  
-  /* === BUTTONS === */
-  .btn-primary {
-    background-color: #e50914;
-    border-color: #e50914;
-  }
-  
-  .btn-primary:hover {
-    background-color: #ff3333;
-    border-color: #ff1a1a;
-  }
-  
-  /* === TITEL UND TEXT === */
-  h1, h2, h3, h4, h5 {
-    color: #ffffff;
-    font-weight: bold;
-  }
-  
-  a {
-    color: #e50914;
-    text-decoration: none;
-  }
-  
-  a:hover {
-    color: #ff3333;
-  }
-  footer.bg-primary {
-    background-color: #000 !important; /* oder jede andere Farbe */
-  }
+}
 
-  .card {
-    transition: transform 0.2s ease-in-out;
-  }
-  
-  .card:hover {
-    transform: scale(1.02);
-    box-shadow: 0 0 15px rgba(229, 9, 20, 0.4);
-  }
-  
-  
+/* === INDEX-INHALTSBEREICH === */
+main.container {
+    background-color: #1e1e1e; /* Etwas heller als body */
+    padding: 1.5rem;
+    border-radius: 0;
+    box-shadow: none;
+    max-width: 1200px;
+
+}
+
+/* === NAVIGATIONSBAR === */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+/* Neue äußere Hülle für roten Hintergrund */
+.navbar-wrapper {
+  background-color: #d00;
+  border-bottom: 1px solid #a00;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Inhalt auf gleiche Breite wie main.container begrenzen */
+.container-inner {
+  max-width: 1200px;
+  width: 100%;
+  padding: 0 1rem;
+}
+.navbar-brand {
+    color: #ffffff !important;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    color: #ffffff !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    background-color: #a00;
+    border-radius: 4px;
+    color: #fff !important;
+}
+
+/* === HEADINGS === */
+h1 {
+    color: #d00;
+    font-size: 2rem;
+    border-bottom: 2px solid #d00;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+h2, h3 {
+    font-weight: bold;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Standardfarben überschreiben */
+h2, h3, p, span, div, li {
+    color: #ffffff;
+}
+
+/* === LINKS (Sportarten / Turniere) === */
+h2 a,
+h3 a {
+    color: #ffffff;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+h2 a:hover,
+h3 a:hover {
+    color: #d00;
+}
+
+/* === MATCH CARDS === */
+.match-card {
+    border-left: 4px solid #d00;
+    background-color: #1a1a1a;
+    color: #fff;
+    margin-bottom: 1rem;
+    border-radius: 0;
+}
+
+.match-card .card-title {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.match-score {
+    color: #d00;
+    font-weight: bold;
+}
+
+/* === FOOTER === */
+footer {
+    background-color: #333 !important;
+    color: #fff;
+    padding: 1.5rem 0;
+    margin-top: 2rem;
+}
+
+/* === UTILITY KLASSEN === */
+.text-danger {
+    color: #d00 !important;
+}
+
+.bg-primary {
+    background-color: #d00 !important;
+}
+
+/* === RESPONSIVE ANPASSUNGEN === */
+@media (max-width: 768px) {
+    .navbar-nav {
+        margin-top: 0.5rem;
+    }
+
+    .nav-item {
+        margin-bottom: 0.25rem;
+    }
+}
+
+
+/* === SPIELZEILE (kompakt, wie Screenshot) === */
+.match-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #121212;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  color: #fff;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+/* Team-Blöcke gleich breit */
+.team {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 55%; /* ← gleich große Seiten */
+}
+
+/* Team 1 nach rechts ausrichten (Mitte) */
+.team-left {
+  justify-content: flex-end;
+}
+
+/* Team 2 nach links ausrichten (Mitte) */
+.team-right {
+  justify-content: flex-start;
+}
+
+/* Score zentriert */
+.score {
+  background-color: #000;
+  padding: 0.25rem 0.75rem;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 6px;
+  color: #fff;
+  margin: 0 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+}
+
+.team img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    flex-shrink: 0; /* verhindert Stauchen durch Flex */
+}
+.team span {
+    font-weight: bold;
+}
+
+
+
+.section-title {
+  text-align: center;
+  color: #fff;
+  font-size: 1.75rem;
+  font-weight: bold;
+  margin: 0 -1.5rem; /* neg. Margin für volle Breite, kein vertikaler Abstand */
+  border-bottom: 1px solid #555;
+  line-height: 1.2;
+  padding: 0.5rem 0; /* nur etwas vertikale Luft für Text + Linie */
+}
+
+
+
+.tournament-title {
+    color: #d00;
+    font-size: 1.25rem;
+    margin: 1rem 0 0.5rem;
+    text-align: center;  /* ← neu */
+}
+
+.section-break {
+    width: 100vw;
+    height: 24px;
+    background-color: #121212; /* gleiche Farbe wie body */
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+}
+
