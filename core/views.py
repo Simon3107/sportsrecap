@@ -337,22 +337,19 @@ def search(request):
     if not query:
         return redirect('index')
 
-    # Suche nach Turnieren und Teams
     matching_tournaments = Tournament.objects.filter(name__icontains=query)
     matching_teams = Team.objects.filter(name__icontains=query)
 
-    # Alle Spiele, bei denen Team1, Team2 oder das Turnier dem Query entspricht
     matches = Match.objects.filter(
         Q(team1__name__icontains=query) |
         Q(team2__name__icontains=query) |
         Q(tournament__name__icontains=query)
     ).distinct()
 
-    # Wenn nur ein Spiel gefunden wurde und keine Teams oder Turniere → direkt zur Detailansicht
     if matches.count() == 1 and not matching_tournaments.exists() and not matching_teams.exists():
         return redirect('match_detail', id=matches.first().id)
 
-    # Teams + ihre Spiele vorbereiten
+    # NEU: teams_with_matches vorbereiten
     teams_with_matches = []
     for team in matching_teams:
         team_matches = Match.objects.filter(
@@ -362,7 +359,7 @@ def search(request):
 
     return render(request, 'search_results.html', {
         'query': query,
-        'teams_with_matches': teams_with_matches,
+        'teams_with_matches': teams_with_matches,  # <- NEU
         'tournaments': matching_tournaments,
         'matches': matches,
     })

@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
+<h1>DEBUG: Template aktiv?</h1>
 
 {% block content %}
 <h2>Suchergebnisse für: "{{ query }}"</h2>
 
 {% if teams_with_matches %}
-  <h3>🔵 Teams</h3>
-  {% for team, matches in teams_with_matches %}
+  <h3>Teams</h3>
+  {% for team, team_matches in teams_with_matches %}
     <h5>{{ team.name }}</h5>
     <ul>
-      {% for match in matches %}
+      {% for match in team_matches %}
         <li>
           <a href="{% url 'match_detail' match.id %}">
             {{ match.match_date }} – {{ match.team1.name }} vs {{ match.team2.name }}
@@ -22,7 +23,7 @@
 {% endif %}
 
 {% if tournaments %}
-  <h3>🏆 Turniere</h3>
+  <h3>Turniere</h3>
   {% for tournament in tournaments %}
     <h5>{{ tournament.name }}</h5>
     <ul>
@@ -40,7 +41,7 @@
 {% endif %}
 
 {% if matches and not teams_with_matches and not tournaments %}
-  <h3>⚽ Spiele</h3>
+  <h3>Spiele</h3>
   <ul>
     {% for match in matches %}
       <li>
