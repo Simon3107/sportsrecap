@@ -46,11 +46,7 @@
         </form>
       </div>
 
-      {% if team.logo %}
-        <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}">
-          <img src="{{ team.logo.url }}" alt="{{ team.name }}" height="50" class="mb-2">
-        </a>
-      {% endif %}
+
 
       <div>
         {% if matches %}
