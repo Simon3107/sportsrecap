@@ -31,10 +31,12 @@ main.container {
   background-color: #d00;
   border-bottom: 1px solid #a00;
   box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-  width: 100%;
+  width: 1200px;
+  margin: 0 auto; /* ← Zentriert die Leiste */
   display: flex;
   justify-content: center;
 }
+
 
 /* Inhalt auf gleiche Breite wie main.container begrenzen */
 .container-inner {
@@ -116,10 +118,12 @@ h3 a:hover {
 
 /* === FOOTER === */
 footer {
-    background-color: #333 !important;
+    background-color: #000000 !important;
     color: #fff;
     padding: 1.5rem 0;
     margin-top: 2rem;
+    width: 1200px;
+    margin: 0 auto;
 }
 
 /* === UTILITY KLASSEN === */
@@ -435,3 +439,19 @@ match-detail-row {
   box-shadow: none !important;
   border-color: #444 !important;  /* optional: eigene Farbe */
 }
+
+.admin-link {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.admin-link:hover {
+  color: #dc3545; /* Bootstrap-Rot oder beliebige andere rote Farbe */
+  text-decoration: none;
+}
+
