@@ -9,6 +9,7 @@ from collections import defaultdict
 from itertools import chain
 from django.template.loader import render_to_string
 
+
 from .models import (
     Sport,
     Match,

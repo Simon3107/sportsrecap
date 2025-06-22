@@ -50,6 +50,7 @@
         </h3>
 
         <a href="{% url 'match_detail' match.id %}" class="match-row-link">
+          <div class="match-infos">{{ match.match_date|date:"d.m.Y" }}</div>
           <div class="match-row">
             <div class="team team-left">
               <span>{{ match.team1.name }}</span>

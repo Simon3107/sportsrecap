@@ -3,20 +3,29 @@
 {% block title %}{{ sport.name }} – Spiele{% endblock %}
 
 {% block content %}
-  <h2>Spiele in {{ sport.name }}</h2>
+  <h2 class="section-title">{{ sport.name }} - Spiele</h2>
 
   {% include 'filter_template.html' %}
 
   {% if matches %}
-    <ul class="list-group">
-      {% for match in matches %}
-        <a href="{% url 'match_detail' match.id %}" class="list-group-item list-group-item-action">
-          <strong>{{ match.team1.name }}</strong> vs <strong>{{ match.team2.name }}</strong> <br>
-          Ergebnis: {{ match.score }} <br>
-          Datum: {{ match.match_date }}
-        </a>
-      {% endfor %}
-    </ul>
+    {% for match in matches %}
+      <a href="{% url 'match_detail' match.id %}" class="match-row-link">
+        <div class="match-infos">{{ match.tournament.name }}: {{ match.match_date|date:"d.m.Y" }}</div>
+        <div class="match-row">
+          <div class="team team-left">
+            <span>{{ match.team1.name }}</span>
+            <img src="{% if match.team1.logo %}{{ match.team1.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}" alt="{{ match.team1.name }}">
+          </div>
+
+          <div class="score">{{ match.score }}</div>
+
+          <div class="team team-right">
+            <img src="{% if match.team2.logo %}{{ match.team2.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}" alt="{{ match.team2.name }}">
+            <span>{{ match.team2.name }}</span>
+          </div>
+        </div>
+      </a>
+    {% endfor %}
   {% else %}
     <p>Es wurden noch keine Spiele für diese Sportart eingetragen.</p>
   {% endif %}

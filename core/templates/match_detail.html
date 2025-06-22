@@ -1,163 +1,185 @@
 {% extends 'base.html' %}
-
 {% block title %}Match Detail{% endblock %}
 
 {% block content %}
 
 {% if user.is_authenticated %}
   <div class="d-flex justify-content-center gap-3 mb-4">
-    <form action="{% url 'toggle_favorite' match.team1.id %}" method="post" class="favorite-form">
+    <form action="{% url 'toggle_favorite' match.team1.id %}" method="post" class="favorite-form d-none">
       {% csrf_token %}
-      <button type="submit" class="btn {% if is_team1_favorite %}btn-warning active{% else %}btn-outline-warning{% endif %}">
-        <span class="favorite-star">{% if is_team1_favorite %}★{% else %}☆{% endif %}</span>
-        {{ match.team1.name }}
-      </button>
     </form>
-    
-    <form action="{% url 'toggle_favorite' match.team2.id %}" method="post" class="favorite-form">
+    <form action="{% url 'toggle_favorite' match.team2.id %}" method="post" class="favorite-form d-none">
       {% csrf_token %}
-      <button type="submit" class="btn {% if is_team2_favorite %}btn-warning active{% else %}btn-outline-warning{% endif %}">
-        <span class="favorite-star">{% if is_team2_favorite %}★{% else %}☆{% endif %}</span>
-        {{ match.team2.name }}
-      </button>
     </form>
   </div>
 {% endif %}
 
-<div class="text-center text-white bg-dark py-4">
-  <div class="mb-2">
-    <small>{{ match.tournament }} · {{ match.match_date|date:"D, j.n." }}</small>
-    <span class="float-end me-4">Endstand</span>
+<!-- MATCH INFO OBEN -->
+<div class="match-info text-center py-2">
+  <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+    <span class="text-muted small">{{ match.tournament }}</span>
+    <span class="separator">·</span>
+    <span class="text-muted small">{{ match.match_date|date:"j.n.Y" }}</span>
+    <span class="separator">·</span>
+    <span class="text-muted small">Endstand</span>
   </div>
 </div>
 
-<div class="d-flex justify-content-center align-items-center">
+<!-- MATCH-DETAIL-ROW -->
+<div class="match-detail-row d-flex justify-content-center align-items-center gap-4">
 
-  <!-- Team 1 -->
-  <div class="text-center mx-3">
-    <a href="{% url 'sport_matches' match.sport.id %}?team={{ match.team1.id }}">
+  <!-- Team 1 + Stern -->
+  <div class="d-flex flex-column align-items-center">
+    <div class="d-flex align-items-center">
+      {% if user.is_authenticated %}
+      <form action="{% url 'toggle_favorite' match.team1.id %}" method="post" class="favorite-form me-2">
+        {% csrf_token %}
+        <button type="submit" class="favorite-btn {% if is_team1_favorite %}active{% endif %}">
+          {% if is_team1_favorite %}★{% else %}☆{% endif %}
+        </button>
+      </form>
+      {% endif %}
       <img src="{% if match.team1.logo %}{{ match.team1.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}"
-          alt="{{ match.team1.name }}" width="50" height="50" class="mb-1">
-      <h5>{{ match.team1.name }}</h5>
-    </a>
+           alt="{{ match.team1.name }}" class="team-logo">
+    </div>
     
   </div>
 
-  <!-- Score -->
-  <div class="mx-3">
-    <h2 class="fw-bold">{{ match.score }}</h2>
+<!-- SCORE -->
+<div class="d-flex align-items-center justify-content-center score-wrapper mx-5">
+  <div class="score-box">
+    {{ match.score }}
   </div>
+</div>
 
-  <!-- Team 2 -->
-  <div class="text-center mx-3">
-    <a href="{% url 'sport_matches' match.sport.id %}?team={{ match.team2.id }}">
+  <!-- Team 2 + Stern -->
+  <div class="d-flex flex-column align-items-center">
+    <div class="d-flex align-items-center">
       <img src="{% if match.team2.logo %}{{ match.team2.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}"
-          alt="{{ match.team2.name }}" width="50" height="50" class="mb-1">
-      <h5>{{ match.team2.name }}</h5>
-    </a>
-    
+           alt="{{ match.team2.name }}" class="team-logo">
+      {% if user.is_authenticated %}
+      <form action="{% url 'toggle_favorite' match.team2.id %}" method="post" class="favorite-form ms-2">
+        {% csrf_token %}
+        <button type="submit" class="favorite-btn {% if is_team2_favorite %}active{% endif %}">
+          {% if is_team2_favorite %}★{% else %}☆{% endif %}
+        </button>
+      </form>
+      {% endif %}
+    </div>
+   
   </div>
 
 </div>
 
+<div class="d-flex justify-content-center gap-5 mt-2 text-white">
+  <div class="text-center" style="width: 120px">
+    <div class="team-name">{{ match.team1.name }}</div>
+  </div>
+  <div style="width: 70px"></div> <!-- Leerraum für Score -->
+  <div class="text-center" style="width: 120px">
+    <div class="team-name">{{ match.team2.name }}</div>
+  </div>
+</div>
 
-<!-- Optional: YouTube-Video -->
+
+
+<!-- OPTIONAL: VIDEO -->
 {% if match.yt_url %}
 <div class="container my-4">
-    <div class="ratio ratio-16x9">
-      <iframe
-        src="https://www.youtube.com/embed/{{ match.yt_url|cut:'https://www.youtube.com/watch?v=' }}"
-        title="YouTube video player"
-        frameborder="0"
-        allowfullscreen>
-      </iframe>
-    </div>
+  <div class="ratio ratio-16x9">
+    <iframe
+      src="https://www.youtube.com/embed/{{ match.yt_url|cut:'https://www.youtube.com/watch?v=' }}"
+      title="YouTube video player"
+      frameborder="0"
+      allowfullscreen>
+    </iframe>
+  </div>
 </div>
 {% endif %}
 
-<div class="container mt-5">
-    <h4>Kommentare</h4>
+<!-- KOMMENTARE -->
+<div class="comment-section mt-5">
+  <h5 class="section-title mb-3">Kommentare</h5>
 
-    {% if user.is_authenticated %}
-        <form id="comment-form" method="post">
-            {% csrf_token %}
-            {{ comment_form.as_p }}
-            <button type="submit" class="btn btn-primary">Kommentar absenden</button>
-        </form>
-    {% else %}
-        <div class="alert alert-info">
-            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-sm btn-primary">Einloggen</a>
-            um einen Kommentar zu schreiben.
-        </div>
-    {% endif %}
-
-    <div id="comments-list">
-        {% for comment in comments %}
-            <div class="card mb-2">
-                <div class="card-body">
-                    <strong>{{ comment.user.username }}</strong>
-                    <small class="text-muted">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
-                    <p>{{ comment.text }}</p>
-                </div>
-            </div>
-        {% endfor %}
+  {% if user.is_authenticated %}
+    <form id="comment-form" method="post" class="comment-form mb-4">
+      {% csrf_token %}
+      <textarea name="text" id="id_text" class="form-control comment-input" placeholder="Kommentar hinzufügen..." rows="2"></textarea>
+      <div class="d-flex justify-content-end mt-2 gap-2">
+        <button type="button" class="btn btn-cancel" onclick="document.getElementById('id_text').value = ''">Abbrechen</button>
+        <button type="submit" class="btn btn-submit">Kommentieren</button>
+      </div>
+    </form>
+  {% else %}
+    <div class="alert alert-info">
+      <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-sm btn-primary">Einloggen</a> um einen Kommentar zu schreiben.
     </div>
+  {% endif %}
+
+  <div id="comments-list">
+    {% for comment in comments %}
+      <div class="card mb-2">
+        <div class="card-body py-2 px-3">
+          <div class="d-flex justify-content-between mb-1">
+            <strong>{{ comment.user.username }}</strong>
+            <small class="text-muted">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+          </div>
+          <p class="mb-0">{{ comment.text }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
 </div>
 
-<!-- AJAX Script -->
+
+<!-- AJAX LOGIK -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-  $(document).ready(function() {
+$(function () {
   $('.favorite-form').submit(function(e) {
     e.preventDefault();
-    var form = $(this);
-    var button = form.find('button');
-    
+    const form = $(this);
+    const button = form.find('button');
+
     $.ajax({
       type: 'POST',
       url: form.attr('action'),
       data: form.serialize(),
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      },
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
       success: function(response) {
-        if(response.status === 'added') {
-          button.removeClass('btn-outline-warning').addClass('btn-warning active');
-          button.find('.favorite-star').text('★');
+        if (response.status === 'added') {
+          button.addClass('active').html('★');
         } else {
-          button.removeClass('btn-warning active').addClass('btn-outline-warning');
-          button.find('.favorite-star').text('☆');
+          button.removeClass('active').html('☆');
+        }
+      }
+    });
+  });
+
+  $('#comment-form').submit(function(e) {
+    e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: '{% url "add_comment" match.id %}',
+      data: $(this).serialize(),
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      success: function(response) {
+        if (response.success) {
+          $('#comments-list').prepend(
+            `<div class="card mb-2">
+              <div class="card-body">
+                <strong>${response.user}</strong>
+                <small class="text-muted">${response.date}</small>
+                <p>${response.comment}</p>
+              </div>
+            </div>`
+          );
+          $('#id_text').val('');
         }
       }
     });
   });
 });
-
-$(document).ready(function() {
-    $('#comment-form').submit(function(e) {
-        e.preventDefault();
-        $.ajax({
-            type: 'POST',
-            url: '{% url "add_comment" match.id %}',
-            data: $(this).serialize(),
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'  // Wichtig für die Erkennung
-            },
-            success: function(response) {
-                if(response.success) {
-                    $('#comments-list').prepend(
-                        '<div class="card mb-2">' +
-                        '<div class="card-body">' +
-                        '<strong>' + response.user + '</strong>' +
-                        '<small class="text-muted">' + response.date + '</small>' +
-                        '<p>' + response.comment + '</p>' +
-                        '</div></div>'
-                    );
-                    $('#id_text').val('');
-                }
-            }
-        });
-    });
-});
 </script>
+
 {% endblock %}
