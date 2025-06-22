@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 {% block title %}Meine Favoriten{% endblock %}
+
 {% block content %}
 <div class="container">
-  <h1 class="mb-4">Spiele deiner Lieblings-Teams</h1>
 
-  <!-- 🔍 Favoriten-Suchfeld + Hinzufügen -->
-  <h2 class="mt-5">⚙️ Favoriten verwalten</h2>
+
+  <!-- Favoriten-Suchfeld + Hinzufügen -->
+  <h2 class="mt-5">Favoriten verwalten</h2>
   <div class="mb-4">
     <input type="text" id="team-search" class="form-control" placeholder="Team suchen...">
   </div>
@@ -29,6 +30,9 @@
   </div>
 
   <hr>
+
+  <!-- Neue Position der Filterüberschrift -->
+  <h2 class="mb-3">Spiele filtern</h2>
 
   <!-- Filter-Formular -->
   <div class="card mb-4">
@@ -72,28 +76,47 @@
   <!-- Ergebnisse -->
   {% if sports_data %}
     {% for sport_data in sports_data %}
-      <h2 class="mt-4">
-        <a href="{% url 'sport_matches' sport_data.sport.id %}" class="text-decoration-none text-white">
+      <h2 class="section-title">
+        <a href="{% url 'sport_matches' sport_data.sport.id %}" class="text-decoration-none hover-red text-white">
           {{ sport_data.sport.name }}
         </a>
       </h2>
 
       {% for tournament, matches in sport_data.tournaments.items %}
-        <h3 class="text-warning mt-3">
-          <a href="{% url 'sport_matches' sport_data.sport.id %}?tournament={{ tournament.id }}" class="text-warning text-decoration-none">
+        <h3 class="tournament-title">
+          <a href="{% url 'sport_matches' sport_data.sport.id %}?tournament={{ tournament.id }}" class="text-decoration-none hover-red text-white">
             {{ tournament.name }}
           </a>
         </h3>
 
-        <ul class="list-group mb-4">
-          {% for match in matches %}
-            <a href="{% url 'match_detail' match.id %}" class="list-group-item list-group-item-action">
-              <strong>{{ match.team1.name }}</strong> vs <strong>{{ match.team2.name }}</strong><br>
-              Ergebnis: {{ match.score }}<br>
-              Datum: {{ match.match_date|date:"d.m.Y" }}
-            </a>
-          {% endfor %}
-        </ul>
+        {% for match in matches %}
+          <a href="{% url 'match_detail' match.id %}" class="match-row-link">
+            <div class="match-row">
+              <div class="team team-left">
+                <span>{{ match.team1.name }}</span>
+                {% if match.team1.logo %}
+                  <img src="{{ match.team1.logo.url }}" alt="{{ match.team1.name }}">
+                {% else %}
+                  <img src="/media/team_logos/default_logo.png" alt="{{ match.team1.name }}">
+                {% endif %}
+              </div>
+
+              <div class="score">{{ match.score }}</div>
+
+              <div class="team team-right">
+                {% if match.team2.logo %}
+                  <img src="{{ match.team2.logo.url }}" alt="{{ match.team2.name }}">
+                {% else %}
+                  <img src="/media/team_logos/default_logo.png" alt="{{ match.team2.name }}">
+                {% endif %}
+                <span>{{ match.team2.name }}</span>
+              </div>
+            </div>
+          </a>
+          <p class="text-muted mb-4" style="margin-top: -0.5rem;">
+            {{ match.match_date|date:"d.m.Y" }}
+          </p>
+        {% endfor %}
       {% endfor %}
     {% endfor %}
   {% else %}
@@ -106,6 +129,13 @@
     </div>
   {% endif %}
 </div>
+
+<!-- Hover-Farbe über CSS -->
+<style>
+.hover-red:hover {
+  color: #d00 !important;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -142,7 +172,6 @@ document.addEventListener('DOMContentLoaded', function () {
           this.textContent = '+';
         }
 
-        // 🔄 Seite neuladen, damit Spiele neu gerendert werden
         location.reload();
       });
     });
@@ -150,3 +179,4 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 {% endblock %}
+

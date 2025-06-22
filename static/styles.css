@@ -435,3 +435,7 @@ match-detail-row {
   box-shadow: none !important;
   border-color: #444 !important;  /* optional: eigene Farbe */
 }
+.hover-red:hover {
+    color: #d00 !important;
+  }
+  
