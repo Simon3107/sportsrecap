@@ -1,11 +1,13 @@
 {% if teams or tournaments or matches %}
   <ul class="list-group">
-  
+
     {% if teams %}
-      <li class="list-group-item disabled"><strong>Teams</strong></li>
+      <li class="list-group-item" style="background-color: #2a2a2a; color: #ccc;">
+        <strong>Teams</strong>
+      </li>
       {% for team in teams %}
-        <li class="list-group-item">
-          <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}">
+        <li class="list-group-item bg-dark border-secondary">
+          <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}" class="text-white text-decoration-none hover-red">
             {{ team.name }} <small class="text-muted">({{ team.sport.name }})</small>
           </a>
         </li>
@@ -13,10 +15,12 @@
     {% endif %}
 
     {% if tournaments %}
-      <li class="list-group-item disabled"><strong>Turniere</strong></li>
+      <li class="list-group-item" style="background-color: #2a2a2a; color: #ccc;">
+        <strong>Turniere</strong>
+      </li>
       {% for tournament in tournaments %}
-        <li class="list-group-item">
-          <a href="{% url 'sport_matches' tournament.sport.id %}?tournament={{ tournament.id }}">
+        <li class="list-group-item bg-dark border-secondary">
+          <a href="{% url 'sport_matches' tournament.sport.id %}?tournament={{ tournament.id }}" class="text-white text-decoration-none hover-red">
             {{ tournament.name }} <small class="text-muted">({{ tournament.sport.name }})</small>
           </a>
         </li>
@@ -24,10 +28,12 @@
     {% endif %}
 
     {% if matches %}
-      <li class="list-group-item disabled"><strong>Spiele</strong></li>
+      <li class="list-group-item" style="background-color: #2a2a2a; color: #ccc;">
+        <strong>Spiele</strong>
+      </li>
       {% for match in matches %}
-        <li class="list-group-item">
-          <a href="{% url 'match_detail' match.id %}">
+        <li class="list-group-item bg-dark border-secondary">
+          <a href="{% url 'match_detail' match.id %}" class="text-white text-decoration-none hover-red">
             {{ match.team1.name }} vs {{ match.team2.name }}
             <small class="text-muted">
               – {{ match.match_date|date:"d.m.Y" }},

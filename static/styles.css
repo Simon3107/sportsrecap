@@ -441,17 +441,21 @@ match-detail-row {
 }
 
 .admin-link {
-  color: #fff;
-  text-decoration: none;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: color 0.2s ease;
-}
-
-.admin-link:hover {
-  color: #dc3545; /* Bootstrap-Rot oder beliebige andere rote Farbe */
-  text-decoration: none;
-}
-
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: color 0.2s ease;
+  }
+  
+  .admin-link:hover {
+    color: #dc3545;
+    text-decoration: none;
+  }
+  
+  .hover-red:hover {
+    color: #d00 !important;
+  }
+  
