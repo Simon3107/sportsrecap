@@ -1,70 +1,86 @@
 {% extends 'base.html' %}
+{% block title %}Profil{% endblock %}
 
 {% block content %}
 {% if request.user.is_staff %}
   <p>
-    <a href="{% url 'admin:index' %}" class="btn btn-sm btn-warning">🔧 Adminbereich öffnen</a>
+    <a href="{% url 'admin:index' %}" class="btn btn-warning btn-sm">Adminbereich öffnen</a>
   </p>
 {% endif %}
 
-<h1>👤 Dein Profil</h1>
-
-<h2>🗨️ Deine Kommentare</h2>
-<ul>
-  {% for comment in comments %}
-    <li>
+<section class="mb-5">
+  <h2 class="section-title">Deine Kommentare</h2>
+  <ul class="list-group">
+    {% for comment in comments %}
+      <li class="list-group-item bg-dark text-white border-secondary mb-2">
         <strong>
-            <a href="{% url 'match_detail' comment.match.id %}">
-              {{ comment.match }}
-            </a>
-          </strong><br>
-      <em>{{ comment.created_at|date:"d.m.Y H:i" }}</em><br>
-      {{ comment.text }}
-    </li>
-  {% empty %}
-    <li>Du hast noch keine Kommentare geschrieben.</li>
-  {% endfor %}
-</ul>
-
-<h2>⭐ Deine favorisierten Teams</h2>
-{% for team, matches in team_matches.items %}
-  <div style="margin-bottom: 30px;">
-    <h3>
-      <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}" class="text-decoration-none text-white">
-        {{ team.name }}
-      </a>
-      
-      <form method="post" action="{% url 'toggle_favorite' team.id %}" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-sm btn-outline-danger ms-2">
-          Entfernen ✖
-        </button>
-      </form>
-    </h3>
-      
-    {% if team.logo %}
-      <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}">
-        <img src="{{ team.logo.url }}" alt="{{ team.name }}" height="50">
-      </a>
-    {% endif %}
-
-    <h4>Letzte Spiele:</h4>
-    <ul>
-      {% for match in matches %}
-      <li>
-        <a href="{% url 'match_detail' match.id %}">
-          {{ match.match_date }} – {{ match.team1.name }} vs {{ match.team2.name }} ({{ match.score }})
-          <br>
-          <small class="text-danger fw-bold">{{ match.tournament.name }}</small>
-        </a>
+          <a href="{% url 'match_detail' comment.match.id %}" class="text-white text-decoration-none">
+            {{ comment.match }}
+          </a>
+        </strong><br>
+        <em>{{ comment.created_at|date:"d.m.Y" }}</em><br>
+        {{ comment.text }}
       </li>
-      
-      {% empty %}
-        <li>Keine Spiele gefunden.</li>
-      {% endfor %}
-    </ul>
-  </div>
-{% empty %}
-  <p>Du hast noch keine Teams als Favoriten.</p>
-{% endfor %}
+    {% empty %}
+      <li class="list-group-item bg-dark text-white border-secondary">
+        Du hast noch keine Kommentare geschrieben.
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section class="mb-5">
+  <h2 class="section-title">Deine favorisierten Teams</h2>
+
+  {% for team, matches in team_matches.items %}
+    <div class="mb-4">
+      <div class="d-flex align-items-center justify-content-between">
+        <h3 class="tournament-title mb-2">
+          <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}" class="text-white text-decoration-none">
+            {{ team.name }}
+          </a>
+        </h3>
+        <form method="post" action="{% url 'toggle_favorite' team.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger btn-sm">Entfernen</button>
+        </form>
+      </div>
+
+      {% if team.logo %}
+        <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}">
+          <img src="{{ team.logo.url }}" alt="{{ team.name }}" height="50" class="mb-2">
+        </a>
+      {% endif %}
+
+      <div>
+        {% if matches %}
+          {% for match in matches %}
+            <a href="{% url 'match_detail' match.id %}" class="match-row-link">
+              <div class="match-row">
+                <div class="team team-left">
+                  <span>{{ match.team1.name }}</span>
+                  <img src="{% if match.team1.logo %}{{ match.team1.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}" alt="{{ match.team1.name }}">
+                </div>
+
+                <div class="score">{{ match.score }}</div>
+
+                <div class="team team-right">
+                  <img src="{% if match.team2.logo %}{{ match.team2.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}" alt="{{ match.team2.name }}">
+                  <span>{{ match.team2.name }}</span>
+                </div>
+              </div>
+            </a>
+            <p class="text-muted mb-4" style="margin-top: -0.5rem;">
+              {{ match.match_date|date:"d.m.Y" }} – {{ match.tournament.name }}
+            </p>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted">Keine Spiele gefunden.</p>
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted">Du hast noch keine Teams als Favoriten.</p>
+  {% endfor %}
+</section>
 {% endblock %}
