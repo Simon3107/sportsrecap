@@ -3,17 +3,6 @@
 
 {% block content %}
 
-{% if user.is_authenticated %}
-  <div class="d-flex justify-content-center gap-3 mb-4">
-    <form action="{% url 'toggle_favorite' match.team1.id %}" method="post" class="favorite-form d-none">
-      {% csrf_token %}
-    </form>
-    <form action="{% url 'toggle_favorite' match.team2.id %}" method="post" class="favorite-form d-none">
-      {% csrf_token %}
-    </form>
-  </div>
-{% endif %}
-
 <!-- MATCH INFO OBEN -->
 <div class="match-info text-center py-2">
   <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
@@ -75,7 +64,7 @@
   <div class="text-center" style="width: 120px">
     <div class="team-name">{{ match.team1.name }}</div>
   </div>
-  <div style="width: 70px"></div> <!-- Leerraum für Score -->
+  <div style="width: 70px"></div> 
   <div class="text-center" style="width: 120px">
     <div class="team-name">{{ match.team2.name }}</div>
   </div>

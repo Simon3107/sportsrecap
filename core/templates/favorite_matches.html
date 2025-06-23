@@ -3,16 +3,20 @@
 
 {% block content %}
 <div class="container">
+
+  <!-- === Hauptüberschrift === -->
   <h1 class="section-title mb-4">Deine Favoriten</h1>
 
-  <!-- Favoriten-Suchfeld + Hinzufügen -->
+  <!-- === Favoriten-Suchfeld + Favoritenliste nach Sportart === -->
   <section class="mb-5">
     <h2 class="section-title">Favoriten verwalten</h2>
     
+    <!--Suchfeld für Teams -->
     <div class="mb-4">
       <input type="text" id="team-search" class="form-control" placeholder="Team suchen...">
     </div>
 
+    <!-- Liste aller Teams gruppiert nach Sportart -->
     <div id="team-list">
       {% for group in sports_with_teams %}
         <h4 class="mt-4">{{ group.sport.name }}</h4>
@@ -20,11 +24,15 @@
           {% for team in group.teams %}
             <div class="team-item" data-name="{{ team.name|lower }}">
               <div class="match-row text-center p-3 d-flex flex-column align-items-center" style="width: 120px;">
+                
+                <!-- Teamlogo + Favoritenbutton -->
                 <div class="d-flex align-items-center justify-content-center mb-2">
                   <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}">
                     <img src="{% if team.logo %}{{ team.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}"
-                        alt="{{ team.name }}" class="team-logo me-2" style="height: 40px; object-fit: contain;">
+                         alt="{{ team.name }}" class="team-logo me-2" style="height: 40px; object-fit: contain;">
                   </a>
+
+                  <!-- Favoriten hinzufügen/entfernen per Formular (AJAX) -->
                   <form action="{% url 'toggle_favorite' team.id %}" method="post" class="favorite-form">
                     {% csrf_token %}
                     <button type="submit" class="favorite-btn {% if team.id in favorite_ids %}active{% endif %}"
@@ -33,6 +41,8 @@
                     </button>
                   </form>
                 </div>
+
+                <!-- Teamname mit Link zu dessen Matches -->
                 <div style="font-size: 0.9rem;">
                   <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}" class="text-white text-decoration-none">
                     {{ team.name }}
@@ -46,25 +56,25 @@
     </div>
   </section>
 
-<div id="favorite-matches-section">
-  {% include "favorite_matches_snippet.html" %}
+  <!-- === Bereich für dynamisch nachgeladene Lieblingsspiele === -->
+  <div id="favorite-matches-section">
+    {% include "favorite_matches_snippet.html" %}
+  </div>
+
 </div>
 
 
-  
-</div>
-
-<!-- Hover-Farbe über CSS -->
 <style>
 .hover-red:hover {
   color: #d00 !important;
 }
 </style>
 
+<!-- === jQuery + AJAX für Favoriteninteraktion und Reload === -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function() {
-  // Suchfunktion
+  // 🔍 Suchfunktion für Teamnamen
   const searchInput = document.getElementById('team-search');
   const teamItems = document.querySelectorAll('.team-item');
 
@@ -78,7 +88,7 @@ $(document).ready(function() {
     });
   }
 
-  // Favoriten-Buttons
+  // AJAX-Favoriten-Formular (hinzufügen/entfernen)
   $('.favorite-form').submit(function(e) {
     e.preventDefault();
     const form = $(this);
@@ -90,13 +100,14 @@ $(document).ready(function() {
       data: form.serialize(),
       headers: { 'X-Requested-With': 'XMLHttpRequest' },
       success: function(response) {
+        // Button-Status und Titel aktualisieren
         if (response.status === 'added') {
           button.addClass('active').html('★').attr('title', 'Aus Favoriten entfernen');
         } else {
           button.removeClass('active').html('☆').attr('title', 'Zu Favoriten hinzufügen');
         }
 
-        // 🟢 Spiele neu laden
+        //Spieleliste aktualisieren
         reloadFavoriteMatches();
       },
       error: function(xhr, status, error) {
@@ -105,7 +116,7 @@ $(document).ready(function() {
     });
   });
 
-  // 🧩 WICHTIG: Hier ist die fehlende Funktion
+  // AJAX-Ladefunktion für Lieblingsspiele (Snippet)
   function reloadFavoriteMatches() {
     $.ajax({
       url: "{% url 'favorite_matches_snippet' %}",
@@ -122,4 +133,3 @@ $(document).ready(function() {
 </script>
 
 {% endblock %}
-

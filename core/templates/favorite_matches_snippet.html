@@ -1,55 +1,76 @@
-  <h2 class="section-title" style="margin-bottom: 1rem;">Spiele deiner Favoriten</h2>
-    <!-- Ergebnisse -->
-    {% if sports_data %}
-      {% for sport_data in sports_data %}
-        <h3 class="section-title">
-          <a href="{% url 'sport_matches' sport_data.sport.id %}" class="text-decoration-none hover-red text-white">
-            {{ sport_data.sport.name }}
-          </a>
-        </h3>
+<!-- Titel der Spielesektion -->
+<h2 class="section-title" style="margin-bottom: 1rem;">Spiele deiner Favoriten</h2>
 
-        {% for tournament, matches in sport_data.tournaments.items %}
-          <h4 class="tournament-title">
-            <a href="{% url 'sport_matches' sport_data.sport.id %}?tournament={{ tournament.id }}" class="text-decoration-none hover-red text-white">
-              {{ tournament.name }}
-            </a>
-          </h4>
+<!-- Wenn Daten vorhanden sind -->
+{% if sports_data %}
+  
+  <!-- Schleife über jede Sportart -->
+  {% for sport_data in sports_data %}
 
-          {% for match in matches %}
-            <a href="{% url 'match_detail' match.id %}" class="match-row-link">
-              <div class="match-infos">{{ match.match_date|date:"d.m.Y" }}</div>
-              <div class="match-row">
-                <div class="team team-left">
-                  <span>{{ match.team1.name }}</span>
-                  {% if match.team1.logo %}
-                    <img src="{{ match.team1.logo.url }}" alt="{{ match.team1.name }}">
-                  {% else %}
-                    <img src="/media/team_logos/default_logo.png" alt="{{ match.team1.name }}">
-                  {% endif %}
-                </div>
+    <!-- Überschrift mit Sportart-Name + Verlinkung -->
+    <h3 class="section-title">
+      <a href="{% url 'sport_matches' sport_data.sport.id %}" class="text-decoration-none hover-red text-white">
+        {{ sport_data.sport.name }}
+      </a>
+    </h3>
 
-                <div class="score">{{ match.score }}</div>
+    <!-- Schleife über alle Turniere innerhalb dieser Sportart -->
+    {% for tournament, matches in sport_data.tournaments.items %}
 
-                <div class="team team-right">
-                  {% if match.team2.logo %}
-                    <img src="{{ match.team2.logo.url }}" alt="{{ match.team2.name }}">
-                  {% else %}
-                    <img src="/media/team_logos/default_logo.png" alt="{{ match.team2.name }}">
-                  {% endif %}
-                  <span>{{ match.team2.name }}</span>
-                </div>
-              </div>
-            </a>
-         
-          {% endfor %}
-        {% endfor %}
+      <!-- Turnierüberschrift mit Link -->
+      <h4 class="tournament-title">
+        <a href="{% url 'sport_matches' sport_data.sport.id %}?tournament={{ tournament.id }}" class="text-decoration-none hover-red text-white">
+          {{ tournament.name }}
+        </a>
+      </h4>
+
+      <!-- Schleife über alle Spiele im Turnier -->
+      {% for match in matches %}
+        <a href="{% url 'match_detail' match.id %}" class="match-row-link">
+          
+          <!-- Match-Datum -->
+          <div class="match-infos">{{ match.match_date|date:"d.m.Y" }}</div>
+
+          <!-- Match-Darstellung: Teams & Ergebnis -->
+          <div class="match-row">
+
+            <!-- Linkes Team -->
+            <div class="team team-left">
+              <span>{{ match.team1.name }}</span>
+              {% if match.team1.logo %}
+                <img src="{{ match.team1.logo.url }}" alt="{{ match.team1.name }}">
+              {% else %}
+                <img src="/media/team_logos/default_logo.png" alt="{{ match.team1.name }}">
+              {% endif %}
+            </div>
+
+            <!-- Ergebnis -->
+            <div class="score">{{ match.score }}</div>
+
+            <!-- Rechtes Team -->
+            <div class="team team-right">
+              {% if match.team2.logo %}
+                <img src="{{ match.team2.logo.url }}" alt="{{ match.team2.name }}">
+              {% else %}
+                <img src="/media/team_logos/default_logo.png" alt="{{ match.team2.name }}">
+              {% endif %}
+              <span>{{ match.team2.name }}</span>
+            </div>
+
+          </div>
+        </a>
       {% endfor %}
+
+    {% endfor %}
+  {% endfor %}
+
+<!-- Wenn keine Spiele vorhanden sind -->
+{% else %}
+  <div class="alert alert-info">
+    {% if selected_sport or selected_tournament or selected_team %}
+      Keine Spiele gefunden, die den Filterkriterien entsprechen.
     {% else %}
-      <div class="alert alert-info">
-        {% if selected_sport or selected_tournament or selected_team %}
-          Keine Spiele gefunden, die den Filterkriterien entsprechen.
-        {% else %}
-          Du hast noch keine Spiele von favorisierten Teams.
-        {% endif %}
-      </div>
+      Du hast noch keine Spiele von favorisierten Teams.
     {% endif %}
+  </div>
+{% endif %}

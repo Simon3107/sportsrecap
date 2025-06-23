@@ -2,23 +2,31 @@
 {% block title %}Neueste Spiele{% endblock %}
 
 {% block content %}
-<section class="latest-matches-section">
+
+<!-- Abschnittstitel: Neueste Spiele -->
+
   <h1 class="section-title" style="margin-bottom: 0;">Neueste Spiele</h1>
-  
-</section>
+
+
+<!-- Visuelle Trennung zwischen Sektionen -->
 <div class="section-break"></div>
 
-
+<!-- Durchlauf durch alle Sportarten -->
 {% for sport_data in data %}
   <section class="sport-section mb-5">
+  
+    <!-- Sportname mit Link zur Gesamtübersicht -->
     <h2 class="section-title">
       <a href="{% url 'sport_matches' sport_data.sport.id %}" class="text-decoration-none">
         {{ sport_data.sport.name }}
       </a>
     </h2>
 
+    <!-- Innerhalb jedes Sports: das jeweils aktuellste Match je Turnier -->
     {% for tournament, match in sport_data.tournaments_latest.items %}
       <div class="tournament-card mb-3">
+
+        <!-- Turniername mit Filterlink -->
         <h3 class="tournament-title">
           <a class="text-decoration-none"
              href="{% url 'sport_matches' sport_data.sport.id %}?tournament={{ tournament.id }}">
@@ -26,31 +34,36 @@
           </a>
         </h3>
 
+        <!-- Matchanzeige: Datum, Teamlogos, Namen und Score -->
         <a href="{% url 'match_detail' match.id %}" class="match-row-link">
           <div class="match-infos">{{ match.match_date|date:"d.m.Y" }}</div>
           <div class="match-row">
+
+            <!-- Team 1: Name und Logo -->
             <div class="team team-left">
               <span>{{ match.team1.name }}</span>
-              <!-- LOGO-PLATZHALTER: team1 -->
               <img src="{% if match.team1.logo %}{{ match.team1.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}" alt="{{ match.team1.name }}">
             </div>
 
+            <!-- Scoreanzeige -->
             <div class="score">{{ match.score }}</div>
 
+            <!-- Team 2: Logo und Name -->
             <div class="team team-right">
-              <!-- LOGO-PLATZHALTER: team2 -->
               <img src="{% if match.team2.logo %}{{ match.team2.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}" alt="{{ match.team2.name }}">
               <span>{{ match.team2.name }}</span>
             </div>
+
           </div>
         </a>
       </div>
     {% endfor %}
   </section>
 
-    {% if not forloop.last %}
+  <!-- Trennlinie zwischen den Sportarten (außer nach dem letzten) -->
+  {% if not forloop.last %}
     <div class="section-break"></div>
   {% endif %}
-  
+
 {% endfor %}
 {% endblock %}

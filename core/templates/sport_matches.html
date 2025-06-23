@@ -3,30 +3,45 @@
 {% block title %}{{ sport.name }} – Spiele{% endblock %}
 
 {% block content %}
+  <!-- === Seitentitel mit Sportnamen === -->
   <h1 class="section-title">{{ sport.name }} - Spiele</h1>
 
+  <!-- === Filterformular (Turnier / Team) einbinden === -->
   {% include 'filter_template.html' %}
 
+  <!-- === Spielübersicht === -->
   {% if matches %}
     {% for match in matches %}
+      <!-- Match-Karte als klickbarer Link -->
       <a href="{% url 'match_detail' match.id %}" class="match-row-link">
-        <div class="match-infos">{{ match.tournament.name }}: {{ match.match_date|date:"d.m.Y" }}</div>
+        <!-- Match-Infos oben (Turniername und Datum) -->
+        <div class="match-infos">
+          {{ match.tournament.name }}: {{ match.match_date|date:"d.m.Y" }}
+        </div>
+
+        <!-- Match-Zeile mit Teams und Ergebnis -->
         <div class="match-row">
+          <!-- Team 1 (linke Seite) -->
           <div class="team team-left">
             <span>{{ match.team1.name }}</span>
-            <img src="{% if match.team1.logo %}{{ match.team1.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}" alt="{{ match.team1.name }}">
+            <img src="{% if match.team1.logo %}{{ match.team1.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}" 
+                 alt="{{ match.team1.name }}">
           </div>
 
+          <!-- Ergebnis in der Mitte -->
           <div class="score">{{ match.score }}</div>
 
+          <!-- Team 2 (rechte Seite) -->
           <div class="team team-right">
-            <img src="{% if match.team2.logo %}{{ match.team2.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}" alt="{{ match.team2.name }}">
+            <img src="{% if match.team2.logo %}{{ match.team2.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}" 
+                 alt="{{ match.team2.name }}">
             <span>{{ match.team2.name }}</span>
           </div>
         </div>
       </a>
     {% endfor %}
   {% else %}
+    <!-- Hinweis bei keinen gefundenen Spielen -->
     <p>Es wurden noch keine Spiele für diese Sportart eingetragen.</p>
   {% endif %}
 {% endblock %}

@@ -1,7 +1,13 @@
 <!-- core/templates/core/includes/sport_matches_filter.html -->
+
+<!-- === Filter-Karte für Turniere und Teams === -->
 <div class="card mb-4">
   <div class="card-body">
+  
+    <!-- Filterformular (GET) mit Turnier- und Team-Auswahl -->
     <form method="get" class="row g-3">
+
+      <!-- Dropdown: Turnierauswahl -->
       <div class="col-md-4">
         <label for="tournament" class="form-label">Turnier</label>
         <select name="tournament" id="tournament" class="form-select">
@@ -13,7 +19,8 @@
           {% endfor %}
         </select>
       </div>
-      
+
+      <!-- Dropdown: Teamauswahl -->
       <div class="col-md-4">
         <label for="team" class="form-label">Team</label>
         <select name="team" id="team" class="form-select">
@@ -25,11 +32,14 @@
           {% endfor %}
         </select>
       </div>
-      
+
+      <!-- Buttons: Filtern und Zurücksetzen -->
       <div class="col-md-4 d-flex align-items-end">
         <button type="submit" class="btn btn-primary">Filtern</button>
         <a href="{% url 'sport_matches' sport.id %}" class="btn btn-outline-secondary ms-2">Zurücksetzen</a>
       </div>
+      
     </form>
+
   </div>
 </div>

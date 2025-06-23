@@ -2,7 +2,10 @@
 {% block title %}Profil{% endblock %}
 
 {% block content %}
+<!-- === Seitentitel === -->
 <h1 class="section-title">Dein Profil</h1>
+
+<!-- === Adminlink nur für Staff-User === -->
 {% if request.user.is_staff %}
   <div class="d-flex justify-content-end mt-2">
     <a href="{% url 'admin:index' %}" class="admin-link" target="_blank" rel="noopener">
@@ -12,12 +15,12 @@
   </div>
 {% endif %}
 
-
-
+<!-- === Abschnitt: Kommentare des Users === -->
 <section class="mb-5">
   <h2 class="section-title">Deine Kommentare</h2>
 
   {% if comments %}
+    <!-- Liste der Kommentare -->
     <div class="d-flex flex-column gap-3">
       {% for comment in comments %}
         <div class="match-row p-3 d-flex flex-column">
@@ -32,21 +35,25 @@
       {% endfor %}
     </div>
   {% else %}
+    <!-- Hinweis bei keinen Kommentaren -->
     <div class="match-row p-3 text-muted">Du hast noch keine Kommentare geschrieben.</div>
   {% endif %}
 </section>
 
-
+<!-- === Abschnitt: Favorisierte Teams === -->
 <section class="mb-5">
   <h2 class="section-title">Deine favorisierten Teams</h2>
 
+  <!-- Favoriten nach Sportart gruppieren -->
   {% regroup favorite_teams by team.sport as grouped_sports %}
   
   {% for group in grouped_sports %}
+    <!-- Überschrift: Sportart -->
     <h4 class="mt-4">{{ group.grouper.name }}</h4>
     <div class="d-flex flex-wrap gap-4">
       {% for fav in group.list %}
         {% with team=fav.team %}
+          <!-- Einzelnes Team -->
           <div class="match-row text-center p-3 d-flex flex-column align-items-center" style="width: 120px;">
             <div class="d-flex align-items-center justify-content-center mb-2">
               <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}">
@@ -73,29 +80,30 @@
   {% endfor %}
 </section>
 
+<!-- === AJAX: Entfernen von Favoriten ohne Neuladen === -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.favorite-btn').forEach(button => {
-    button.addEventListener('click', function () {
-      const teamId = this.dataset.teamId;
+    document.querySelectorAll('.favorite-btn').forEach(button => {
+      button.addEventListener('click', function () {
+        const teamId = this.dataset.teamId;
 
-      fetch(`/favorit/${teamId}/`, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}',
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 'removed') {
-          // Team aus DOM entfernen
-          this.closest('.match-row').remove();
-        }
+        fetch(`/favorit/${teamId}/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'removed') {
+            // Team-Element aus DOM entfernen
+            this.closest('.match-row').remove();
+          }
+        });
       });
     });
   });
-});
 </script>
 
 {% endblock %}
