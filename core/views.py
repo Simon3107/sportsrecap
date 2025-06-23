@@ -410,3 +410,51 @@ def favorite_team_browser(request):
     })
 
 
+@login_required
+def favorite_matches_snippet(request):
+    # exakt gleiche Logik wie in favorite_matches
+    # (duplizieren oder in Hilfsfunktion auslagern)
+
+    favorite_teams = FavoriteTeam.objects.filter(user=request.user).select_related('team__sport')
+    favorite_ids = set(favorite_teams.values_list('team_id', flat=True))
+
+    sport_id = request.GET.get('sport')
+    tournament_id = request.GET.get('tournament')
+    team_id = request.GET.get('team')
+
+    matches = Match.objects.filter(
+        Q(team1__in=favorite_ids) | Q(team2__in=favorite_ids)
+    )
+    if sport_id:
+        matches = matches.filter(sport_id=sport_id)
+    if tournament_id:
+        matches = matches.filter(tournament_id=tournament_id)
+    if team_id:
+        matches = matches.filter(Q(team1_id=team_id) | Q(team2_id=team_id))
+
+    all_sports = Sport.objects.all().order_by('name')
+    all_teams = Team.objects.select_related('sport').all()
+    all_tournaments = Tournament.objects.filter(
+        id__in=matches.values_list('tournament', flat=True).distinct()
+    )
+
+    sports_data = []
+    for sport in all_sports:
+        sport_matches = matches.filter(sport=sport)
+        tournaments_data = defaultdict(list)
+        for match in sport_matches:
+            tournaments_data[match.tournament].append(match)
+        if sport_matches.exists():
+            sports_data.append({
+                'sport': sport,
+                'tournaments': dict(tournaments_data)
+            })
+
+    html = render_to_string('favorite_matches_snippet.html', {
+        'sports_data': sports_data,
+        'selected_sport': int(sport_id) if sport_id else None,
+        'selected_tournament': int(tournament_id) if tournament_id else None,
+        'selected_team': int(team_id) if team_id else None,
+    }, request=request)
+
+    return JsonResponse({'html': html})

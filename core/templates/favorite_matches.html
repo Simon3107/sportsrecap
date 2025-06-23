@@ -46,62 +46,12 @@
     </div>
   </section>
 
-  <h2 class="section-title" style="margin-bottom: 1rem;">Spiele deiner Favoriten</h2>
-    <!-- Ergebnisse -->
-    {% if sports_data %}
-      {% for sport_data in sports_data %}
-        <h3 class="section-title">
-          <a href="{% url 'sport_matches' sport_data.sport.id %}" class="text-decoration-none hover-red text-white">
-            {{ sport_data.sport.name }}
-          </a>
-        </h3>
+<div id="favorite-matches-section">
+  {% include "favorite_matches_snippet.html" %}
+</div>
 
-        {% for tournament, matches in sport_data.tournaments.items %}
-          <h4 class="tournament-title">
-            <a href="{% url 'sport_matches' sport_data.sport.id %}?tournament={{ tournament.id }}" class="text-decoration-none hover-red text-white">
-              {{ tournament.name }}
-            </a>
-          </h4>
 
-          {% for match in matches %}
-            <a href="{% url 'match_detail' match.id %}" class="match-row-link">
-              <div class="match-infos">{{ match.match_date|date:"d.m.Y" }}</div>
-              <div class="match-row">
-                <div class="team team-left">
-                  <span>{{ match.team1.name }}</span>
-                  {% if match.team1.logo %}
-                    <img src="{{ match.team1.logo.url }}" alt="{{ match.team1.name }}">
-                  {% else %}
-                    <img src="/media/team_logos/default_logo.png" alt="{{ match.team1.name }}">
-                  {% endif %}
-                </div>
-
-                <div class="score">{{ match.score }}</div>
-
-                <div class="team team-right">
-                  {% if match.team2.logo %}
-                    <img src="{{ match.team2.logo.url }}" alt="{{ match.team2.name }}">
-                  {% else %}
-                    <img src="/media/team_logos/default_logo.png" alt="{{ match.team2.name }}">
-                  {% endif %}
-                  <span>{{ match.team2.name }}</span>
-                </div>
-              </div>
-            </a>
-         
-          {% endfor %}
-        {% endfor %}
-      {% endfor %}
-    {% else %}
-      <div class="alert alert-info">
-        {% if selected_sport or selected_tournament or selected_team %}
-          Keine Spiele gefunden, die den Filterkriterien entsprechen.
-        {% else %}
-          Du hast noch keine Spiele von favorisierten Teams.
-        {% endif %}
-      </div>
-    {% endif %}
-  </section>
+  
 </div>
 
 <!-- Hover-Farbe über CSS -->
@@ -133,7 +83,7 @@ $(document).ready(function() {
     e.preventDefault();
     const form = $(this);
     const button = form.find('.favorite-btn');
-    
+
     $.ajax({
       type: 'POST',
       url: form.attr('action'),
@@ -145,13 +95,31 @@ $(document).ready(function() {
         } else {
           button.removeClass('active').html('☆').attr('title', 'Zu Favoriten hinzufügen');
         }
+
+        // 🟢 Spiele neu laden
+        reloadFavoriteMatches();
       },
       error: function(xhr, status, error) {
         console.error('Error:', error);
       }
     });
   });
+
+  // 🧩 WICHTIG: Hier ist die fehlende Funktion
+  function reloadFavoriteMatches() {
+    $.ajax({
+      url: "{% url 'favorite_matches_snippet' %}",
+      dataType: "json",
+      success: function(data) {
+        $('#favorite-matches-section').html(data.html);
+      },
+      error: function(xhr, status, error) {
+        console.error('Fehler beim Nachladen der Spiele:', error);
+      }
+    });
+  }
 });
 </script>
+
 {% endblock %}
 

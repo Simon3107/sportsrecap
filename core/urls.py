@@ -23,6 +23,8 @@ urlpatterns = [
     path('suche/', views.search, name='search'),
     path('ajax/live-search/', views.ajax_live_search, name='ajax_live_search'),
     path('favoriten/bearbeiten/', views.favorite_team_browser, name='favorite_team_browser'),
+    path('favoriten/snippet/', views.favorite_matches_snippet, name='favorite_matches_snippet'),
+
 
 
 
