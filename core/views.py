@@ -116,7 +116,8 @@ def profile(request):
     comments = Comment.objects.filter(user=user).order_by('-created_at')
 
     # Favorisierte Teams
-    favorite_teams = FavoriteTeam.objects.filter(user=user).select_related('team')
+    favorite_teams = FavoriteTeam.objects.filter(user=user).select_related('team', 'team__sport').order_by('team__sport__name')
+
 
     # Letzte Spiele je Team (z. B. 5)
     team_matches = {}

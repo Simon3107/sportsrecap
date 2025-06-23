@@ -2,7 +2,7 @@
 {% block title %}Profil{% endblock %}
 
 {% block content %}
-<h2 class="section-title">Dein Profil</h2>
+<h1 class="section-title">Dein Profil</h1>
 {% if request.user.is_staff %}
   <div class="d-flex justify-content-end mt-2">
     <a href="{% url 'admin:index' %}" class="admin-link" target="_blank" rel="noopener">
@@ -16,73 +16,86 @@
 
 <section class="mb-5">
   <h2 class="section-title">Deine Kommentare</h2>
-  <ul class="list-group">
-    {% for comment in comments %}
-      <li class="list-group-item bg-dark text-white border-secondary mb-2">
-        <strong>
-          <a href="{% url 'match_detail' comment.match.id %}" class="text-white text-decoration-none">
-            {{ comment.match }}
-          </a>
-        </strong><br>
-        <em>{{ comment.created_at|date:"d.m.Y" }}</em><br>
-        {{ comment.text }}
-      </li>
-    {% empty %}
-      <li class="list-group-item bg-dark text-white border-secondary">
-        Du hast noch keine Kommentare geschrieben.
-      </li>
-    {% endfor %}
-  </ul>
+
+  {% if comments %}
+    <div class="d-flex flex-column gap-3">
+      {% for comment in comments %}
+        <div class="match-row p-3 d-flex flex-column">
+          <strong>
+            <a href="{% url 'match_detail' comment.match.id %}" class="text-white text-decoration-none">
+              {{ comment.match }}
+            </a>
+          </strong>
+          <small class="text-muted mb-2">{{ comment.created_at|date:"d.m.Y" }}</small>
+          <div>{{ comment.text }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="match-row p-3 text-muted">Du hast noch keine Kommentare geschrieben.</div>
+  {% endif %}
 </section>
+
 
 <section class="mb-5">
   <h2 class="section-title">Deine favorisierten Teams</h2>
 
-  {% for team, matches in team_matches.items %}
-    <div class="mb-4">
-      <div class="d-flex align-items-center justify-content-between">
-        <h3 class="tournament-title mb-2">
-          <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}" class="text-white text-decoration-none">
-            {{ team.name }}
-          </a>
-        </h3>
-        <form method="post" action="{% url 'toggle_favorite' team.id %}">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-outline-danger btn-sm">Entfernen</button>
-        </form>
-      </div>
-
-
-
-      <div>
-        {% if matches %}
-          {% for match in matches %}
-            <a href="{% url 'match_detail' match.id %}" class="match-row-link">
-              <div class="match-row">
-                <div class="team team-left">
-                  <span>{{ match.team1.name }}</span>
-                  <img src="{% if match.team1.logo %}{{ match.team1.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}" alt="{{ match.team1.name }}">
-                </div>
-
-                <div class="score">{{ match.score }}</div>
-
-                <div class="team team-right">
-                  <img src="{% if match.team2.logo %}{{ match.team2.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}" alt="{{ match.team2.name }}">
-                  <span>{{ match.team2.name }}</span>
-                </div>
-              </div>
-            </a>
-            <p class="text-muted mb-4" style="margin-top: -0.5rem;">
-              {{ match.match_date|date:"d.m.Y" }} – {{ match.tournament.name }}
-            </p>
-          {% endfor %}
-        {% else %}
-          <p class="text-muted">Keine Spiele gefunden.</p>
-        {% endif %}
-      </div>
+  {% regroup favorite_teams by team.sport as grouped_sports %}
+  
+  {% for group in grouped_sports %}
+    <h4 class="mt-4">{{ group.grouper.name }}</h4>
+    <div class="d-flex flex-wrap gap-4">
+      {% for fav in group.list %}
+        {% with team=fav.team %}
+          <div class="match-row text-center p-3 d-flex flex-column align-items-center" style="width: 120px;">
+            <div class="d-flex align-items-center justify-content-center mb-2">
+              <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}">
+                <img src="{% if team.logo %}{{ team.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}"
+                    alt="{{ team.name }}" class="team-logo me-2" style="height: 40px; object-fit: contain;">
+              </a>
+              <button class="favorite-btn active"
+                      data-team-id="{{ team.id }}"
+                      title="Aus Favoriten entfernen">
+                ★
+              </button>
+            </div>
+            <div style="font-size: 0.9rem;">
+              <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}" class="text-white text-decoration-none">
+                {{ team.name }}
+              </a>
+            </div>
+          </div>
+        {% endwith %}
+      {% endfor %}
     </div>
   {% empty %}
     <p class="text-muted">Du hast noch keine Teams als Favoriten.</p>
   {% endfor %}
 </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.favorite-btn').forEach(button => {
+    button.addEventListener('click', function () {
+      const teamId = this.dataset.teamId;
+
+      fetch(`/favorit/${teamId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'removed') {
+          // Team aus DOM entfernen
+          this.closest('.match-row').remove();
+        }
+      });
+    });
+  });
+});
+</script>
+
 {% endblock %}

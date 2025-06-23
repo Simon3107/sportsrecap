@@ -3,131 +3,105 @@
 
 {% block content %}
 <div class="container">
-
+  <h1 class="section-title mb-4">Deine Favoriten</h1>
 
   <!-- Favoriten-Suchfeld + Hinzufügen -->
-  <h2 class="mt-5">Favoriten verwalten</h2>
-  <div class="mb-4">
-    <input type="text" id="team-search" class="form-control" placeholder="Team suchen...">
-  </div>
-
-  <div id="team-list">
-    {% for group in sports_with_teams %}
-      <h5 class="mt-4">{{ group.sport.name }}</h5>
-      <div class="row mb-3">
-        {% for team in group.teams %}
-          <div class="col-md-3 team-item" data-name="{{ team.name|lower }}">
-            <div class="d-flex align-items-center justify-content-between border p-2 rounded">
-              <span>{{ team.name }}</span>
-              <button class="btn btn-sm {% if team.id in favorite_ids %}btn-warning{% else %}btn-outline-secondary{% endif %} toggle-fav" data-team-id="{{ team.id }}">
-                {% if team.id in favorite_ids %}★{% else %}+{% endif %}
-              </button>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-    {% endfor %}
-  </div>
-
-  <hr>
-
-  <!-- Neue Position der Filterüberschrift -->
-  <h2 class="mb-3">Spiele filtern</h2>
-
-  <!-- Filter-Formular -->
-  <div class="card mb-4">
-    <div class="card-body">
-      <form method="get" class="row g-3">
-        <div class="col-md-4">
-          <label for="sport" class="form-label">Sportart</label>
-          <select name="sport" id="sport" class="form-select">
-            <option value="">Alle Sportarten</option>
-            {% for sport in all_sports %}
-              <option value="{{ sport.id }}" {% if selected_sport == sport.id %}selected{% endif %}>{{ sport.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label for="tournament" class="form-label">Turnier</label>
-          <select name="tournament" id="tournament" class="form-select">
-            <option value="">Alle Turniere</option>
-            {% for tournament in all_tournaments %}
-              <option value="{{ tournament.id }}" {% if selected_tournament == tournament.id %}selected{% endif %}>{{ tournament.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label for="team" class="form-label">Mannschaft</label>
-          <select name="team" id="team" class="form-select">
-            <option value="">Alle Mannschaften</option>
-            {% for team in all_teams %}
-              <option value="{{ team.id }}" {% if selected_team == team.id %}selected{% endif %}>{{ team.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-12">
-          <button type="submit" class="btn btn-primary">Filtern</button>
-          <a href="{% url 'favorite_matches' %}" class="btn btn-outline-secondary ms-2">Zurücksetzen</a>
-        </div>
-      </form>
+  <section class="mb-5">
+    <h2 class="section-title">Favoriten verwalten</h2>
+    
+    <div class="mb-4">
+      <input type="text" id="team-search" class="form-control" placeholder="Team suchen...">
     </div>
-  </div>
 
-  <!-- Ergebnisse -->
-  {% if sports_data %}
-    {% for sport_data in sports_data %}
-      <h2 class="section-title">
-        <a href="{% url 'sport_matches' sport_data.sport.id %}" class="text-decoration-none hover-red text-white">
-          {{ sport_data.sport.name }}
-        </a>
-      </h2>
+    <div id="team-list">
+      {% for group in sports_with_teams %}
+        <h4 class="mt-4">{{ group.sport.name }}</h4>
+        <div class="d-flex flex-wrap gap-4">
+          {% for team in group.teams %}
+            <div class="team-item" data-name="{{ team.name|lower }}">
+              <div class="match-row text-center p-3 d-flex flex-column align-items-center" style="width: 120px;">
+                <div class="d-flex align-items-center justify-content-center mb-2">
+                  <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}">
+                    <img src="{% if team.logo %}{{ team.logo.url }}{% else %}/media/team_logos/default_logo.png{% endif %}"
+                        alt="{{ team.name }}" class="team-logo me-2" style="height: 40px; object-fit: contain;">
+                  </a>
+                  <form action="{% url 'toggle_favorite' team.id %}" method="post" class="favorite-form">
+                    {% csrf_token %}
+                    <button type="submit" class="favorite-btn {% if team.id in favorite_ids %}active{% endif %}"
+                            title="{% if team.id in favorite_ids %}Aus Favoriten entfernen{% else %}Zu Favoriten hinzufügen{% endif %}">
+                      {% if team.id in favorite_ids %}★{% else %}☆{% endif %}
+                    </button>
+                  </form>
+                </div>
+                <div style="font-size: 0.9rem;">
+                  <a href="{% url 'sport_matches' team.sport.id %}?team={{ team.id }}" class="text-white text-decoration-none">
+                    {{ team.name }}
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
 
-      {% for tournament, matches in sport_data.tournaments.items %}
-        <h3 class="tournament-title">
-          <a href="{% url 'sport_matches' sport_data.sport.id %}?tournament={{ tournament.id }}" class="text-decoration-none hover-red text-white">
-            {{ tournament.name }}
+  <h2 class="section-title" style="margin-bottom: 1rem;">Spiele deiner Favoriten</h2>
+    <!-- Ergebnisse -->
+    {% if sports_data %}
+      {% for sport_data in sports_data %}
+        <h3 class="section-title">
+          <a href="{% url 'sport_matches' sport_data.sport.id %}" class="text-decoration-none hover-red text-white">
+            {{ sport_data.sport.name }}
           </a>
         </h3>
 
-        {% for match in matches %}
-          <a href="{% url 'match_detail' match.id %}" class="match-row-link">
-            <div class="match-row">
-              <div class="team team-left">
-                <span>{{ match.team1.name }}</span>
-                {% if match.team1.logo %}
-                  <img src="{{ match.team1.logo.url }}" alt="{{ match.team1.name }}">
-                {% else %}
-                  <img src="/media/team_logos/default_logo.png" alt="{{ match.team1.name }}">
-                {% endif %}
-              </div>
+        {% for tournament, matches in sport_data.tournaments.items %}
+          <h4 class="tournament-title">
+            <a href="{% url 'sport_matches' sport_data.sport.id %}?tournament={{ tournament.id }}" class="text-decoration-none hover-red text-white">
+              {{ tournament.name }}
+            </a>
+          </h4>
 
-              <div class="score">{{ match.score }}</div>
+          {% for match in matches %}
+            <a href="{% url 'match_detail' match.id %}" class="match-row-link">
+              <div class="match-infos">{{ match.match_date|date:"d.m.Y" }}</div>
+              <div class="match-row">
+                <div class="team team-left">
+                  <span>{{ match.team1.name }}</span>
+                  {% if match.team1.logo %}
+                    <img src="{{ match.team1.logo.url }}" alt="{{ match.team1.name }}">
+                  {% else %}
+                    <img src="/media/team_logos/default_logo.png" alt="{{ match.team1.name }}">
+                  {% endif %}
+                </div>
 
-              <div class="team team-right">
-                {% if match.team2.logo %}
-                  <img src="{{ match.team2.logo.url }}" alt="{{ match.team2.name }}">
-                {% else %}
-                  <img src="/media/team_logos/default_logo.png" alt="{{ match.team2.name }}">
-                {% endif %}
-                <span>{{ match.team2.name }}</span>
+                <div class="score">{{ match.score }}</div>
+
+                <div class="team team-right">
+                  {% if match.team2.logo %}
+                    <img src="{{ match.team2.logo.url }}" alt="{{ match.team2.name }}">
+                  {% else %}
+                    <img src="/media/team_logos/default_logo.png" alt="{{ match.team2.name }}">
+                  {% endif %}
+                  <span>{{ match.team2.name }}</span>
+                </div>
               </div>
-            </div>
-          </a>
-          <p class="text-muted mb-4" style="margin-top: -0.5rem;">
-            {{ match.match_date|date:"d.m.Y" }}
-          </p>
+            </a>
+         
+          {% endfor %}
         {% endfor %}
       {% endfor %}
-    {% endfor %}
-  {% else %}
-    <div class="alert alert-info">
-      {% if selected_sport or selected_tournament or selected_team %}
-        Keine Spiele gefunden, die den Filterkriterien entsprechen.
-      {% else %}
-        Du hast noch keine Spiele von favorisierten Teams.
-      {% endif %}
-    </div>
-  {% endif %}
+    {% else %}
+      <div class="alert alert-info">
+        {% if selected_sport or selected_tournament or selected_team %}
+          Keine Spiele gefunden, die den Filterkriterien entsprechen.
+        {% else %}
+          Du hast noch keine Spiele von favorisierten Teams.
+        {% endif %}
+      </div>
+    {% endif %}
+  </section>
 </div>
 
 <!-- Hover-Farbe über CSS -->
@@ -137,43 +111,44 @@
 }
 </style>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+$(document).ready(function() {
+  // Suchfunktion
   const searchInput = document.getElementById('team-search');
   const teamItems = document.querySelectorAll('.team-item');
 
-  searchInput.addEventListener('input', function () {
-    const query = this.value.toLowerCase();
-    teamItems.forEach(item => {
-      const name = item.dataset.name;
-      item.style.display = name.includes(query) ? 'block' : 'none';
-    });
-  });
-
-  document.querySelectorAll('.toggle-fav').forEach(button => {
-    button.addEventListener('click', function () {
-      const teamId = this.dataset.teamId;
-      fetch(`/favorit/${teamId}/`, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}',
-          'X-Requested-With': 'XMLHttpRequest'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.status === 'added') {
-          this.classList.remove('btn-outline-secondary');
-          this.classList.add('btn-warning');
-          this.textContent = '★';
-        } else {
-          this.classList.remove('btn-warning');
-          this.classList.add('btn-outline-secondary');
-          this.textContent = '+';
-        }
-
-        location.reload();
+  if (searchInput) {
+    searchInput.addEventListener('input', function () {
+      const query = this.value.toLowerCase();
+      teamItems.forEach(item => {
+        const name = item.dataset.name;
+        item.style.display = name.includes(query) ? 'block' : 'none';
       });
+    });
+  }
+
+  // Favoriten-Buttons
+  $('.favorite-form').submit(function(e) {
+    e.preventDefault();
+    const form = $(this);
+    const button = form.find('.favorite-btn');
+    
+    $.ajax({
+      type: 'POST',
+      url: form.attr('action'),
+      data: form.serialize(),
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      success: function(response) {
+        if (response.status === 'added') {
+          button.addClass('active').html('★').attr('title', 'Aus Favoriten entfernen');
+        } else {
+          button.removeClass('active').html('☆').attr('title', 'Zu Favoriten hinzufügen');
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error('Error:', error);
+      }
     });
   });
 });

@@ -218,7 +218,14 @@ footer {
   padding: 0.5rem 0; /* nur etwas vertikale Luft für Text + Linie */
 }
 
-
+h1.section-title { 
+  font-size: 2rem;
+  margin-bottom: 1rem; }
+h2.section-title { 
+  font-size: 1.75rem;}
+  
+h3.section-title { font-size: 1.4rem; }
+h4.section-title { font-size: 1.2rem; }
 
 .tournament-title {
     color: #d00;
@@ -459,3 +466,9 @@ match-detail-row {
     color: #d00 !important;
   }
   
+#live-search:focus,
+#team-search:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: #ffffff;
+}
